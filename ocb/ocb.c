@@ -28,8 +28,7 @@
 /  To compile: gcc -lcrypto ocb_ref.c                                      */
 
 #include <string.h>
-#include <openssl/aes.h>
-
+#include "aes.h"
 #define CAESAR 0      /* Set non-zero for submission to CAESAR competition */
 
 #if CAESAR
@@ -82,7 +81,7 @@ static void calc_L_i(block l, block ldollar, unsigned i) {
 
 static void hash(block result, unsigned char *k,
                  unsigned char *a, unsigned abytes) {
-    AES_KEY aes_key;
+    struct aes_key_st aes_key;
     block lstar, ldollar, offset, sum, tmp;
     unsigned i;
     
@@ -135,7 +134,7 @@ static void hash(block result, unsigned char *k,
 static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
                      unsigned char *a, unsigned abytes,
                      unsigned char *in, unsigned inbytes, int encrypting) {
-    AES_KEY aes_encrypt_key, aes_decrypt_key;
+    aes_key aes_encrypt_key, aes_decrypt_key;
     block lstar, ldollar, sum, offset, ktop, pad, nonce, tag, tmp;
     unsigned char stretch[24];
     unsigned bottom, byteshift, bitshift, i;
