@@ -6,4 +6,4 @@ Repository for P&D: Crypto Team 1.
 - [ ] Data Encryption (OCB)
 
 ##Notes:
-- To test ocb, compile using: gcc aes.c ocb.c -o test
+- To test ocb, compile using: ***gcc aes.c ocb.c -o test***
