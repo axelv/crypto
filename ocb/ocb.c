@@ -316,43 +316,57 @@ int main() {
     unsigned char final[16];
     unsigned char *c;
     unsigned i, next;
+	unsigned char key[128] = {0,};
+	unsigned char message[128] = {0,};
+
     int result;
+	
+	/* OVERWRITE KEY & MESSAGE (kaas)*/
+	memset(key, 21, 128);
+	printf("Current symmetric key: ");
+	for (i=0; i<KEYBYTES; i++) printf("%02X", key[i]); printf("\n");
+	
+	memset(message, 1, 128);
+	printf("Current message: ");
+	for (i=0; i<KEYBYTES; i++) printf("%02X", message[i]); printf("\n");
+	
     
     /* Encrypt and output RFC vector */
     c = malloc(22400);
     next = 0;
     for (i=0; i<128; i++) {
         nonce[11] = i;
-        ocb_encrypt(c+next, zeroes, nonce, zeroes, i, zeroes, i);
+        ocb_encrypt(c+next, key, nonce, message, i, zeroes, i);
         next = next + i + TAGBYTES;
-        ocb_encrypt(c+next, zeroes, nonce, zeroes, 0, zeroes, i);
+        ocb_encrypt(c+next, key, nonce, message, 0, zeroes, i);
         next = next + i + TAGBYTES;
-        ocb_encrypt(c+next, zeroes, nonce, zeroes, i, zeroes, 0);
+        ocb_encrypt(c+next, key, nonce, message, i, zeroes, 0);
         next = next + TAGBYTES;
     }
     nonce[11] = 0;
-    ocb_encrypt(final, zeroes, nonce, c, next, zeroes, 0);
+    ocb_encrypt(final, key, nonce, c, next, zeroes, 0);
     if (NONCEBYTES == 12) {
         printf("AEAD_AES_%d_OCB_TAGLEN%d Output: ", KEYBYTES*8, TAGBYTES*8);
         for (i=0; i<TAGBYTES; i++) printf("%02X", final[i]); printf("\n");
     }
     
     /* Decrypt and test for all zeros and authenticity */
-    result = ocb_decrypt(p, zeroes, nonce, c, next, final, TAGBYTES);
-    if (result) { printf("FAIL\n"); return 0; }
+    result = ocb_decrypt(p, key, nonce, c, next, final, TAGBYTES);
+    /*if (result){ printf("FAIL\n"); return 0; }*/
     next = 0;
     for (i=0; i<128; i++) {
         nonce[11] = i;
-        result = ocb_decrypt(p, zeroes, nonce, zeroes, i, c+next, i+TAGBYTES);
-        if (result || memcmp(p,zeroes,i)) { printf("FAIL\n"); return 0; }
+        result = ocb_decrypt(p, key, nonce, zeroes, i, c+next, i+TAGBYTES);
+        if (result || memcmp(p,message,i)) { printf("FAIL1\n"); return 0; }
         next = next + i + TAGBYTES;
-        result = ocb_decrypt(p, zeroes, nonce, zeroes, 0, c+next, i+TAGBYTES);
-        if (result || memcmp(p,zeroes,i)) { printf("FAIL\n"); return 0; }
+        result = ocb_decrypt(p, key, nonce, zeroes, 0, c+next, i+TAGBYTES);
+        if (result || memcmp(p,message,i)) { printf("FAIL2\n"); return 0; }
         next = next + i + TAGBYTES;
-        result = ocb_decrypt(p, zeroes, nonce, zeroes, i, c+next, TAGBYTES);
-        if (result || memcmp(p,zeroes,i)) { printf("FAIL\n"); return 0; }
+        result = ocb_decrypt(p, key, nonce, zeroes, i, c+next, TAGBYTES);
+        if (result || memcmp(p,message,i)) { printf("FAIL3\n"); return 0; }
         next = next + TAGBYTES;
     }
+	printf("Result: %d",result);
     return 0;
 }
 
