@@ -20,6 +20,7 @@ Is deze code ANSI-C en voldoet het aan de specs in de opgave (volgorde van argum
 Should be fairly straightforward
 - [ ] **Make everything ANSI-C compliant!!!**
 - [ ] **Cryptographically Secure Pseudo Random Number Generator (CSPRNG)** (eg. Bum Bum Chup) using several entropy sources. (Needed for STS!)
+- 
 ##Notes:
 - To test ocb, compile using: ***gcc aes.c ocb.c -o test***
 - *Do not use malloc( )!!*
