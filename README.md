@@ -1,6 +1,7 @@
 #crypto
 Repository for P&D: Crypto Team 1.
 
+
 #TODO:
 - [ ] **Key Establishment (STS + RSA + SHA256)**
 
@@ -8,7 +9,7 @@ Semi Implemented: Montgomery Multiplication (asymmetric/monmult.c) works, but 8b
 
 To be implemented: Mont. Exponentiation using Mont. Mult., algorithm is 14.94 in Handbook of Applied Crypto
 
-To be implemented: RSA signing using Mont Exponentiation.
+To be implemented: RSA signing using Mont Exponentiation. Need also generate: PKCS #1 1.5 DigestInfo structures for SHA2-256. (See Toledo)
 
 To be implemented: STS (Diffie Hellman) using Mont Exponentiation
 - [ ] **Data Encryption (OCB)**
