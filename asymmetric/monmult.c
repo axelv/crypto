@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #define SIZE 128
+#define MWORDSIZE 8
 
 //input
 uint8_t a[SIZE] = {0xA3,0x71,0x79,0x01,0xFC,0xF2,0x93,0xC7,0x1C,0x69,0x2D,0x67,0x38,0x2B,0x7C,0x1A,0x40,0x88,0xBA,0x9B,0x10,0x53,0x65,0xED,0xFE,0x39,0xB4,0x77,0x3B,0xC8,0x9B,0xB2,0xE4,0xB1,0xA3,0xC9,0xCD,0xC8,0xF2,0x69,0x01,0x91,0x87,0x67,0xAC,0x6E,0x56,0xF1,0x60,0xBF,0x1E,0x0F,0x53,0xA8,0xAF,0x40,0xDB,0x76,0xB2,0xEA,0x90,0xDD,0xFF,0x40,0x0C,0xD2,0x4D,0xDC,0x5E,0xB3,0xE7,0xFA,0xB4,0x53,0x5E,0x75,0x0B,0x91,0x92,0x14,0x7E,0xD8,0xB8,0xA7,0x05,0x95,0xD0,0x55,0x97,0x30,0x78,0x41,0x81,0xEF,0xC6,0x64,0x9F,0x4A,0x9C,0x4A,0x3A,0x0B,0xCA,0xD8,0x9C,0x1A,0x64,0xA7,0xA9,0x6E,0xC8,0x0A,0xE5,0xCE,0xE2,0x3B,0x73,0x8A,0xEF,0xF0,0xE4,0xA6,0x40,0x26,0xF3,0xD9,0x50,0x1F};
@@ -141,21 +142,30 @@ void mod_subtraction(unsigned char *res, unsigned char *in1, unsigned char *in2)
 	
 }
 
-// same function as defined in the paper
-// only difference: always starts from t[1]
-// TODO beter om carry pointer mee te geven? 
-void ADD(unsigned char *t_pointer, unsigned char carry)	
+// Computes x**-1 mod b for x odd and b being 2**(8)
+// x begin ODD is REQUIRED and assumed in this function.
+// For its normal use (inverting the least significant word of the modulus, this is normally fulfilled because the modulus has to be odd.
+// Based on algorithm found in "A Cryptographic Library for the Motorola DSP56000"
+uint8_t mod_inverse(uint8_t x)
 {
-	unsigned short temp_sum = 0;
+	uint8_t y[MWORDSIZE+1] = {0,1,};
+	uint16_t bitmask = 0;
+	for(i=2;i<MWORDSIZE+1;i++){
+		bitmask = 0xFFFF;      //1111111111111111
+		bitmask = bitmask << i;//1111111111111100
+		bitmask = ~bitmask;    //0000000000000011 to select the last 2 bits, which is the same as doing modulo 2**2
+		//fprintf(stdout,"Bitmask is 0x%02X\n", bitmask);
+			if((x*y[i-1] & bitmask) < (0x0001) << (i-1) ){ 
+				
+				y[i] = y[i-1];
+			}else{
+				y[i] = y[i-1] + ((0x01) << (i-1));
+			}
+		//fprintf(stdout,"y[%0d] is %0d\n", i, y[i]);
+	}
 	
-	temp_sum = t_pointer[1] + carry;
-	// actual sum is first char of short
-	t_pointer[1] = temp_sum & 0xff;
-	// carry is second char of short
-	t_pointer[2] += (temp_sum >> (8)) & 0xff;
+	return y[MWORDSIZE];
 }
-
-
 void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2)
 {
 	// You can use n and nprime directly as global variables, i.e. without passing them as pointers
@@ -175,10 +185,10 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2)
 		unsigned short temp_sum = 0;
 
 		// variables used in former mp_substraction function
-			unsigned short s1;
-			unsigned short s2;
-			signed short r = 0;
-			unsigned short c = 0;
+		unsigned short s1;
+		unsigned short s2;
+		signed short r = 0;
+		unsigned short c = 0;
 
 		// resetting t to zeros array TODO needed? 
 		// NEED opmerking onderaan pagina 8 over dimensie van t!
@@ -192,8 +202,10 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2)
 		// carry C
 		uint8_t C = 0;
 
-		// local nprime[0] instead of global
-		uint8_t nprime_0 = nprime[0];
+		uint8_t min_n0 = (-n[0]) & 0xFF;
+		fprintf(stdout,"min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
+		uint8_t nprime_0 = mod_inverse(min_n0);
+		fprintf(stdout,"nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 
 		for(k=0; k<SIZE; k++)
 		{
@@ -361,15 +373,15 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2)
 
 int main() 
 {
-	/*montgomery_multiplication(result_mon_mul,a,b);
+	montgomery_multiplication(result_mon_mul,a,b);
 	for(i=0; i<SIZE; i++)
 	{
 		fprintf(stdout,"0x%02X,", result_mon_mul[i]);
-	} */
-	for(i=0; i<SIZE/2; i++)
+	}
+	/*for(i=0; i<SIZE/2; i++)
 	{
 		fprintf(stdout,"0x%02X,", a16[i]);
-	} 
+	}*/ 
 	return 0;
 }
 
