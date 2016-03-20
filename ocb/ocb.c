@@ -29,19 +29,15 @@
 
 #include <string.h>
 #include "aes.h"
-#define CAESAR 0      /* Set non-zero for submission to CAESAR competition */
+#include <stdio.h>
+#include <stdlib.h>
 
-#if CAESAR
-#include "api.h"
-#include "crypto_aead.h"
-#define KEYBYTES   CRYPTO_KEYBYTES
-#define NONCEBYTES CRYPTO_NPUBBYTES
-#define TAGBYTES   CRYPTO_ABYTES
-#else
-#define KEYBYTES   (128/8)
+
+#define KEYBYTES   (128/8)  /* = 128 bit = 16 byte */
 #define NONCEBYTES (96/8)
 #define TAGBYTES   (128/8)
-#endif
+#define BLOCKBYTES (128/8)
+
 
 #if !(KEYBYTES==16 || KEYBYTES==24 || KEYBYTES==32) ||  \
      (NONCEBYTES > 15 || NONCEBYTES < 0) ||             \
@@ -142,7 +138,7 @@ static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
     /* Setup AES and strip ciphertext of its tag */
     if ( ! encrypting ) {
          if (inbytes < TAGBYTES) return -1;
-         inbytes -= TAGBYTES;
+         inbytes -= TAGBYTES;  				//kaas: de #messagebytes = #ciphertextbytes - #tagbytes
          AES_set_decrypt_key(k, KEYBYTES*8, &aes_decrypt_key);
     }
     AES_set_encrypt_key(k, KEYBYTES*8, &aes_encrypt_key);
@@ -186,7 +182,7 @@ static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
     memset(sum, 0, 16);
 
     /* Process any whole blocks */
-
+	//kaas: elke blok bevat 128 bit = 16 byte
     for (i=1; i<=inbytes/16; i++, in=in+16, out=out+16) {
         /* Offset_i = Offset_{i-1} xor L_{ntz(i)} */
         calc_L_i(tmp, ldollar, i);
@@ -206,6 +202,7 @@ static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
             /* Checksum_i = Checksum_{i-1} xor P_i */
             xor_block(sum, out, sum);
         }
+		
     }
 
     /* Process any final partial block and compute raw tag */
@@ -275,99 +272,58 @@ int ocb_decrypt(unsigned char *p, unsigned char *k, unsigned char *n,
 
 /* ------------------------------------------------------------------------- */
 
-#if CAESAR
-
-int crypto_aead_encrypt(
-unsigned char *c,unsigned long long *clen,
-const unsigned char *m,unsigned long long mlen,
-const unsigned char *ad,unsigned long long adlen,
-const unsigned char *nsec,
-const unsigned char *npub,
-const unsigned char *k
-)
-{
-    *clen = mlen + TAGBYTES;
-    ocb_crypt(c, k, npub, ad, adlen, m, mlen, OCB_ENCRYPT);
-    return 0;
-}
-
-int crypto_aead_decrypt(
-unsigned char *m,unsigned long long *mlen,
-unsigned char *nsec,
-const unsigned char *c,unsigned long long clen,
-const unsigned char *ad,unsigned long long adlen,
-const unsigned char *npub,
-const unsigned char *k
-)
-{
-    *mlen = clen - TAGBYTES;
-    return ocb_crypt(m, k, npub, ad, adlen, c, clen, OCB_DECRYPT);
-}
-
-#else   /* Test against RFC's vectors */
-
-#include <stdio.h>
-#include <stdlib.h>
 
 int main() {
-    unsigned char zeroes[128] = {0,};
-    unsigned char nonce[12] = {0,};
-    unsigned char p[128] = {0,};
-    unsigned char final[16];
-    unsigned char *c;
-    unsigned i, next;
-	unsigned char key[128] = {0,};
-	unsigned char message[128] = {0,};
+    unsigned char m[BLOCKBYTES] = "LKQR0LVHGHREHDUI";	//kaas: plaintext - 128 bit  array (16 bytes)
+	unsigned char a[BLOCKBYTES] = "QF4CSSOTV29SB17X";   //kaas: authenticated data
+    unsigned char k[KEYBYTES] = "3LLEBBLAP3EVUIOP";		//kaas: symmetric key - 96 bit  array (12 bytes)
+	unsigned char n[NONCEBYTES] = "27X63WKO3X8F";		//kaas: noncebytes to create L-table
+    unsigned char p[BLOCKBYTES];						//kaas: decyphered plaintext 
+	unsigned char c[BLOCKBYTES+TAGBYTES] = {0,};		//kaas: cyphertext
+    int result_msg;										//kaas: boolean to check if the initial plaintext = received plaintext
+	int result_tag;										//kaas: boolean to check if the AUTH TAG is valid
+	int i;
+	
+	
+	ocb_encrypt(c, k, n, a, BLOCKBYTES, m, BLOCKBYTES);
 
-    int result;
+	printf("Plaintext (CHAR): \n");
+	for (i=0; i<BLOCKBYTES; i++) printf("%c", m[i]);
+	printf("\n");
+	printf("\n");
 	
-	/* OVERWRITE KEY & MESSAGE (kaas)*/
-	memset(key, 21, 128);
-	printf("Current symmetric key: ");
-	for (i=0; i<KEYBYTES; i++) printf("%02X", key[i]); printf("\n");
+	printf("Authenticated Data (CHAR): \n");
+	for (i=0; i<BLOCKBYTES; i++) printf("%c", a[i]);
+	printf("\n");
+	printf("\n");
 	
-	memset(message, 1, 128);
-	printf("Current message: ");
-	for (i=0; i<KEYBYTES; i++) printf("%02X", message[i]); printf("\n");
+	printf("Encryptionkey (HEX): \n");
+	for (i=0; i<KEYBYTES; i++) printf("%02X", k[i]);
+	printf("\n");
+	printf("\n");
 	
-    
-    /* Encrypt and output RFC vector */
-    c = malloc(22400);
-    next = 0;
-    for (i=0; i<128; i++) {
-        nonce[11] = i;
-        ocb_encrypt(c+next, key, nonce, message, i, zeroes, i);
-        next = next + i + TAGBYTES;
-        ocb_encrypt(c+next, key, nonce, message, 0, zeroes, i);
-        next = next + i + TAGBYTES;
-        ocb_encrypt(c+next, key, nonce, message, i, zeroes, 0);
-        next = next + TAGBYTES;
-    }
-    nonce[11] = 0;
-    ocb_encrypt(final, key, nonce, c, next, zeroes, 0);
-    if (NONCEBYTES == 12) {
-        printf("AEAD_AES_%d_OCB_TAGLEN%d Output: ", KEYBYTES*8, TAGBYTES*8);
-        for (i=0; i<TAGBYTES; i++) printf("%02X", final[i]); printf("\n");
-    }
-    
-    /* Decrypt and test for all zeros and authenticity */
-    result = ocb_decrypt(p, key, nonce, c, next, final, TAGBYTES);
-    /*if (result){ printf("FAIL\n"); return 0; }*/
-    next = 0;
-    for (i=0; i<128; i++) {
-        nonce[11] = i;
-        result = ocb_decrypt(p, key, nonce, zeroes, i, c+next, i+TAGBYTES);
-        if (result || memcmp(p,message,i)) { printf("FAIL1\n"); return 0; }
-        next = next + i + TAGBYTES;
-        result = ocb_decrypt(p, key, nonce, zeroes, 0, c+next, i+TAGBYTES);
-        if (result || memcmp(p,message,i)) { printf("FAIL2\n"); return 0; }
-        next = next + i + TAGBYTES;
-        result = ocb_decrypt(p, key, nonce, zeroes, i, c+next, TAGBYTES);
-        if (result || memcmp(p,message,i)) { printf("FAIL3\n"); return 0; }
-        next = next + TAGBYTES;
-    }
-	printf("Result: %d",result);
-    return 0;
+	printf("Ciphertext (HEX) & Tag (HEX): \n");
+	for (i=0; i<BLOCKBYTES; i++) printf("%02X", c[i]);
+    printf("\n");
+	for (i=BLOCKBYTES; i<BLOCKBYTES+TAGBYTES; i++) printf("%02X", c[i]);
+    printf("\n");
+	printf("\n");
+	result_tag = ocb_decrypt(p, k, n, a, BLOCKBYTES ,c , BLOCKBYTES+TAGBYTES);
+	
+	printf("Output plaintext (CHAR): \n");
+	for (i=0; i<BLOCKBYTES; i++) printf("%c", p[i]);
+    printf("\n");
+	printf("\n");
+		
+	result_msg = memcmp(p,  m, BLOCKBYTES);
+	if(result_msg || result_tag){
+		printf("FAIL \n");
+		printf("Result Tag: %d \n", result_tag);
+		printf("Result message: %d \n", result_msg);
+		
+	}else{
+		printf("Well done! \n");
+		printf("Result Tag: %d \n", result_tag);
+		printf("Result message: %d \n \n", result_msg);
+	}
 }
-
-#endif
