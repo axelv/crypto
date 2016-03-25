@@ -87,9 +87,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		uint8_t C = 0;
 
 		uint8_t min_n0 = (-n[0]) & 0xFF;
-		fprintf(stdout,"min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
+		//fprintf(stdout,"min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
 		uint8_t nprime_0 = mod_inverse(min_n0);
-		fprintf(stdout,"nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
+		//fprintf(stdout,"nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 
 		for(k=0; k<SIZE; k++)
 		{
