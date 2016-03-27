@@ -28,9 +28,9 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent, u
 	uint8_t xtilde[SIZE];
 	uint8_t A[SIZE];
 	uint8_t one[SIZE] = {0x01,0,};
+	uint8_t bln_exp_start = 0;
 	signed int i;
 	signed int j;
-	
 	// 1
 	montgomery_multiplication(xtilde, base, r2modn,n);
 	for(i=0;i<SIZE;i++){ // Copy rmodn into A
@@ -38,20 +38,28 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent, u
 	}
 	
 	//2
-	printf("[EXP] Step 2\n");
+	printf("\n[EXP] Step 2\n");
 	for(i=EXPONENT_LENGTH-1;i>=0; i--){
 		for(j=7;j>=0;j--){
-			montgomery_multiplication(A,A,A,n);
-			if((exponent[i]>>j) & 0x01){
-				printf("Bit %d of the exponent is: 1\n",(i*8)+j);
-				montgomery_multiplication(A,A,xtilde,n);
-			}else{printf("Bit %d of the exponent is: 0\n",(i*8)+j);}
-			
+			if(bln_exp_start){
+				montgomery_multiplication(A,A,A,n);
+				if((exponent[i]>>j) & 0x01){
+					printf("\n[EXP] Bit %d of the exponent is: 1\n",(i*8)+j);
+					montgomery_multiplication(A,A,xtilde,n);
+				}else{printf("\n[EXP] Bit %d of the exponent is: 0\n",(i*8)+j);}
+			}else{
+				if((exponent[i]>>j) & 0x01){
+					printf("\n[EXP] Bit %d of the exponent is the first nonzero bit\n",(i*8)+j);
+					bln_exp_start=1;
+					montgomery_multiplication(A,A,A,n);
+					montgomery_multiplication(A,A,xtilde,n);
+					}
+			}
 		}
 	}
-	printf("[EXP] Step 3:\n");
+	printf("\n[EXP] Step 3:\n");
 	montgomery_multiplication(A,A,one,n);
-	printf("[EXP] Step 4:\n");
+	printf("\n[EXP] Step 4:\n");
 	for(i=0;i<SIZE;i++){ // Copy A into res
 		res[i] = A[i];
 	}

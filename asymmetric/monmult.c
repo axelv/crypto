@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "monmult.h"
+#define MONT_DEBUG 1
 /*
 // NEED TO CHANGE SHIFTING AND MASKING (from >>8 to >>16 for example and from && xff to &&xffff)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 uint16_t a16[SIZE] = {0x71A3,0x179,0xF2FC,0xC793,0x691C,0x672D,0x2B38,0x1A7C,0x8840,0x9BBA,0x5310,0xED65,0x39FE,0x77B4,0xC83B,0xB29B,0xB1E4,0xC9A3,0xC8CD,0x69F2,0x9101,0x6787,0x6EAC,0xF156,0xBF60,0xF1E,0xA853,0x40AF,0x76DB,0xEAB2,0xDD90,0x40FF,0xD20C,0xDC4D,0xB35E,0xFAE7,0x53B4,0x755E,0x910B,0x1492,0xD87E,0xA7B8,0x9505,0x55D0,0x3097,0x4178,0xEF81,0x64C6,0x4A9F,0x4A9C,0xB3A,0xD8CA,0x1A9C,0xA764,0x6EA9,0xAC8,0xCEE5,0x3BE2,0x8A73,0xF0EF,0xA6E4,0x2640,0xD9F3,0x1F50};
@@ -28,8 +29,6 @@ uint16_t n16[SIZE] = {0xD50D,0x260F,0x958F,0x59AD,0xA024,0x8FDA,0x27AE,0xD49F,0x
 
 uint16_t nprime16[SIZE] = {0xFE3B,0x4913,0x1C55,0x1095,0x6074,0xE6FA,0x4B25,0x8A97,0x9234,0x7237,0x1BAE,0xCE7D,0x5F9D,0x6CEC,0xE13,0xC7FE,0xD4B3,0x3B4,0x8B4C,0xDAE,0xDC86,0x665,0xBBC4,0x155D,0x76BE,0x826,0x6057,0x83D8,0x3876,0xDE1C,0x163B,0x2D94,0xA5CC,0x458B,0x322D,0x1287,0x9918,0x4CDE,0x162B,0xFA24,0x692A,0x9C04,0xF3E8,0x82B,0xA879,0xEDC6,0xD8B8,0x451A,0xC57,0xD740,0xA637,0xCD19,0x565A,0xF6DE,0xDB29,0x5A15,0x480B,0x3643,0xFDED,0x90BD,0x8135,0xA33B,0x5418,0xD7B1};
 */
-
-// Global internal RAM (chosen by the compiler by default)
 unsigned char i;
 
 // Computes x**-1 mod b for x odd and b being 2**(8)
@@ -40,6 +39,7 @@ uint8_t mod_inverse(uint8_t x)
 {
 	uint8_t y[MWORDSIZE+1] = {0,1,};
 	uint16_t bitmask = 0;
+	
 	for(i=2;i<MWORDSIZE+1;i++){
 		bitmask = 0xFFFF;      //1111111111111111
 		bitmask = bitmask << i;//1111111111111100
@@ -51,14 +51,31 @@ uint8_t mod_inverse(uint8_t x)
 			}else{
 				y[i] = y[i-1] + ((0x01) << (i-1));
 			}
-		//fprintf(stdout,"y[%0d] is %0d\n", i, y[i]);
+		//fprintf(stdout,"\n[MODINV]y[%0d] is %0d\n", i, y[i]);
 	}
 	
 	return y[MWORDSIZE];
 }
 void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t *n)
 {
-
+		#if MONT_DEBUG
+		signed int it;
+		printf("\n[MULT]\n in1:\n");
+		for(it=SIZE-1; it>=0; it--)
+		{
+			printf("%02X", in1[it]);
+		}
+		printf("\n in2:\n");
+		for(it=SIZE-1; it>=0; it--)
+		{
+			printf("%02X", in2[it]);
+		}
+		printf("\n modulus:\n");
+		for(it=SIZE-1; it>=0; it--)
+		{
+			printf("%02X", n[it]);
+		}
+		#endif
 	// STEP 1: t = a.b & STEP 2 integrated
 	
 		// loop variables
@@ -87,9 +104,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		uint8_t C = 0;
 
 		uint8_t min_n0 = (-n[0]) & 0xFF;
-		//fprintf(stdout,"min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
+		//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
 		uint8_t nprime_0 = mod_inverse(min_n0);
-		//fprintf(stdout,"nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
+		//fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 
 		for(k=0; k<SIZE; k++)
 		{
@@ -252,6 +269,12 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 	{
 		res[k]=m[k];	
 	}
-
+	#if MONT_DEBUG
+	printf("\n res:\n");
+	for(it=SIZE-1; it>=0; it--)
+	{
+		printf("%02X", res[it]);
+	}
+	#endif
 }
 
