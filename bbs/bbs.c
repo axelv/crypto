@@ -1,12 +1,12 @@
 /*
- * bbs.h
+ * bbs.c
  *
  * @version 0.1 (March 2016)
  *
  * Implementation of the Blum-Blum-Shub algorithm to generate cryptographicly safe pseudorandom bits
  *
  * @author Axel Vanraes <axel.vanraes@student.kuleuven.be>
- * @author Michaël Raes <michael.raes@student.kuleuven.be>
+ * @author Michaë¬ Raes <michael.raes@student.kuleuven.be>
  */
 #include <stdint.h>
 #include <stdio.h>
