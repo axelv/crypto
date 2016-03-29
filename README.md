@@ -22,8 +22,11 @@ Should be fairly straightforward
 - [ ] **Make everything ANSI-C compliant!!!**
 
 - [ ] **Cryptographically Secure Pseudo Random Number Generator (CSPRNG)** (eg. Bum Bum Chup) using several entropy sources. (Needed for STS!)
+
 Check if Montgomery squaring is faster than standard squaring operation of c.
+
 Change the typdef 'unsigned char' to uint8_t etc.
+
 ##Notes:
 - To test ocb, compile using: ***gcc aes.c ocb.c -o test***
 - *Do not use malloc( )!!*
