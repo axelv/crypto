@@ -4,6 +4,7 @@ Repository for P&D: Crypto Team 1.
 
 #TODO:
 - [ ] **Key Establishment (STS + RSA + SHA256)**
+
 AV: Replace the predefined secret random numbers with a call to bbs.c
 
 Semi Implemented: Montgomery Multiplication (asymmetric/monmult.c) works, but 8bit operands should be changed to 32 bit in the future (for efficiency). ALSO: Maybe change this to more efficient Montgomery Square algorithm. (We only need squaring)
