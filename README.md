@@ -4,7 +4,7 @@ Repository for P&D: Crypto Team 1.
 
 #TODO:
 - [ ] **Key Establishment (STS + RSA + SHA256)**
-Replace the predefined secret random numbers a call to bbs.c
+AV: Replace the predefined secret random numbers with a call to bbs.c
 
 Semi Implemented: Montgomery Multiplication (asymmetric/monmult.c) works, but 8bit operands should be changed to 32 bit in the future (for efficiency). ALSO: Maybe change this to more efficient Montgomery Square algorithm. (We only need squaring)
 
@@ -23,9 +23,9 @@ Should be fairly straightforward
 
 - [ ] **Cryptographically Secure Pseudo Random Number Generator (CSPRNG)** (eg. Bum Bum Chup) using several entropy sources. (Needed for STS!)
 
-Check if Montgomery squaring is faster than standard squaring operation of c.
+AV: Check if Montgomery squaring is faster than standard squaring operation of c.
 
-Change the typdef 'unsigned char' to uint8_t etc.
+AV: Change the typdef 'unsigned char' to uint8_t etc.
 
 ##Notes:
 - To test ocb, compile using: ***gcc aes.c ocb.c -o test***
