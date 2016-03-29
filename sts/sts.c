@@ -11,6 +11,11 @@ a/*
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include "../asymmetric/monexp.c"
+#include "../ciphers/sha2/sha2.c"
+#include "../digest-info/digest-info.c"
+
 #define GSIZE (128/8)  /*size of the generator*/
 #define PSIZE (2048/8) /*modulus and size of the message g^y & g^x */
 #define XYSIZE (256/8) /*size of the secrete private number*/
@@ -32,14 +37,7 @@ uint8_t p[PSIZE] = {0x50, 0x24, 0x6E, 0x0E, 0x44, 0xDD, 0xE3, 0x57, 0xEB, 0xB9, 
                     0xCF, 0x6F, 0x07, 0x41, 0x89, 0x7A, 0xE8, 0xBD, 0xF1, 0xDD, 0x33, 0x70, 0x80, 0xD0, 0x10, 0xA3, 
                     0xD2, 0x25, 0xB3, 0xCC, 0x4C, 0x62, 0x19, 0xBC, 0x7A, 0x92, 0x8B, 0x46, 0xBC, 0x7A, 0xF4, 0xA7, 
                     0xC6, 0xF7, 0x1A, 0x76, 0xEE, 0x6E, 0xAC, 0x03, 0x4D, 0xAA, 0x3F, 0xC9, 0x3E, 0xE5, 0x92, 0xC8}
-/* ------------------------------------------------------------------------- */
-/* This function is used to simulate montgomery and has to be replaced*/
-void exponent(uint8_t *res, uint8_t *base, uint8_t *exponent, uint8_t *n){
-	*res = (*base^*exponent) % *n;
-}
-
-/* ------------------------------------------------------------------------- */
-
+uint8_t gxy[2*PSIZE] = {0,}             
 
 
 /************************/
@@ -50,12 +48,15 @@ void exponent(uint8_t *res, uint8_t *base, uint8_t *exponent, uint8_t *n){
 /* The master has to start the protocol by sending the message g^y. 
    The generator 'g' is a predetermined number. y is a secret random number. */
 void init_connection(uint8_t *message[PSIZE],uint8_t *secret_numb[XYSIZE]){
-	montgomery_exponent(message, g, secret_numb, p);
+	montgomery_exponentiation(gxy, g, secret_numb, p);
+	message = gxy;
 }
 
 /* ------------------------------------------------------------------------- */
 /* Validate the message received from the slave */
 void validate_slave(bool *valid, uint8_t *message){
+    uint8_t signed_msg[256/8] = SHA256_Data(gxy, 2*PSIZE, sha256_prefix[sha256_prefix])
+	
 		
 }
 /* ------------------------------------------------------------------------- */
@@ -66,7 +67,7 @@ void reply_slave(uint8_t *message, ){
 
 
 /************************/
-/*   Slave == Bob    */
+/*   Slave == Bob       */
 /************************/
 
 /* ------------------------------------------------------------------------- */
