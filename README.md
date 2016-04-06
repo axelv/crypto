@@ -32,8 +32,7 @@ AV: Check if Montgomery squaring is faster than standard squaring operation of c
 
 AV: Change the typdef 'unsigned char' to uint8_t etc.
 
-- [ ] ** Create 'make'-file **
-http://www.gnu.org/software/make/manual/make.html#Introduction
+- [ ] **Create 'make'-file** (http://www.gnu.org/software/make/manual/make.html#Introduction)
 
 ##Notes:
 - To test ocb, compile using: ***gcc aes.c ocb.c -o test***
