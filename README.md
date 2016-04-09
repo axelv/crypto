@@ -9,7 +9,7 @@ AV: Replace the predefined secret random numbers with a call to bbs.c
 
 AV: Reconsider the use of 2PSIZE for gyx/gxy
 
-AV: Solve SHA256 error in sts.c
+AV: Add PKCS formatting between SHA2-256 and RSA
 
 Semi Implemented: Montgomery Multiplication (asymmetric/monmult.c) works, but 8bit operands should be changed to 32 bit in the future (for efficiency). ALSO: Maybe change this to more efficient Montgomery Square algorithm. (We only need squaring)
 
