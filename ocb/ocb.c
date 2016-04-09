@@ -30,10 +30,10 @@
 #include <string.h>
 #include "aes.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> // MAG WEG??? 
 
 
-#define KEYBYTES   (128/8)  /* = 128 bit = 16 byte */
+#define KEYBYTES   (128/8)  // = 128 bit = 16 byte 
 #define NONCEBYTES (96/8)
 #define TAGBYTES   (128/8)
 #define BLOCKBYTES (128/8)
@@ -274,8 +274,8 @@ int ocb_decrypt(unsigned char *p, unsigned char *k, unsigned char *n,
 
 
 int main() {
-    unsigned char m[BLOCKBYTES] = "LKQR0LVHGHREHDUI";	//kaas: plaintext - 128 bit  array (16 bytes)
-	unsigned char a[BLOCKBYTES] = "QF4CSSOTV29SB17X";   //kaas: authenticated data
+    unsigned char m[BLOCKBYTES] = "HALLO_IKBEN_KAAS";	//kaas: plaintext - 128 bit  array (16 bytes)
+	unsigned char a[BLOCKBYTES] = "_GEHEIM_BERICHT_";   //kaas: authenticated data
     unsigned char k[KEYBYTES] = "3LLEBBLAP3EVUIOP";		//kaas: symmetric key - 96 bit  array (12 bytes)
 	unsigned char n[NONCEBYTES] = "27X63WKO3X8F";		//kaas: noncebytes to create L-table
     unsigned char p[BLOCKBYTES];						//kaas: decyphered plaintext 
