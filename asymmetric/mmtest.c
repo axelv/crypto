@@ -58,9 +58,8 @@ uint8_t mod_inverse(uint8_t x)
 }
 void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t *n)
 {
-		signed int it;
 		#if MONT_DEBUG
-		
+		signed int it;
 		printf("\n[MULT]\n in1:\n");
 		for(it=SIZE-1; it>=0; it--)
 		{
@@ -80,8 +79,8 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 	// STEP 1: t = a.b & STEP 2 integrated
 	
 		// loop variables
-		unsigned int k;
-		unsigned int j;
+		unsigned short k;
+		unsigned char j;
 
 		// temporary sum used in former ADD function
 		unsigned short temp_sum = 0;
@@ -90,7 +89,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		unsigned short s1;
 		unsigned short s2;
 		signed short r = 0;
-		signed short c = 0;
+		unsigned short c = 0;
 
 		// resetting t to zeros array TODO needed? 
 		// NEED opmerking onderaan pagina 8 over dimensie van t!
@@ -98,7 +97,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		// variable for storing m as well as u
 		uint8_t m[SIZE];
 		// sum in short (C,S)
-		unsigned int S_short = 0;
+		unsigned short S_short = 0;
 		// sum S
 		uint8_t S = 0;
 		// carry C
@@ -107,7 +106,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		uint8_t min_n0 = (-n[0]) & 0xFF;
 		//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
 		uint8_t nprime_0 = mod_inverse(min_n0);
-		fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
+		//fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 
 		for(k=0; k<SIZE; k++)
 		{
@@ -226,57 +225,14 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 			t[1] = t[2];
 			t[2] = 0;
 		}
-		// STEP 3: subtraction if needed
-		// MSB of u is t[0], the rest of u is contained in m
-		// if u>=n then return u-n else return u
-		if(t[0]!=0){
-			// u>n, subtraction needed
-			printf("\n t[0] is %02X : u>n, subtraction needed.",t[0]);
-			c=0;
-			for(it=0;it<SIZE;it++){
-				r = (m[it] - n[it] + c);
-				if(r>=0){
-					c = 0;
-				}else{
-					c = -1;
-				}
-				m[it] = r;
-			
-			}
-			
-			
-					
-			
-		}else{
-			for(it=SIZE-1; it>=0;it--){
-				if(m[it]>n[it]){
-					printf("subtraction needed.");
-					// u>n, subtraction needed
-					c=0;
-					for(it=0;it<SIZE;it++){
-						r = (m[it] - n[it] + c);
-						if(r>=0){
-							c = 0;
-						}else{
-							c = -1;
-						}
-						m[it] = r;
-					
-					}
-					break;
-				}else if(m[it]<n[it]){
-					// // u<n, no subtraction needed, m contains the result
-					break;
-				}else {
-					// the two compared bytes are equal, go to the next byte to keep comparing
-				}
-			}
-		
-		}
-		// if subtraction was needed, it is already done here. Start copying answer to res
-	
-	
-		/*k=0;
+
+	// STEP 3: substraction if needed
+	// if u>=n then return u-n else return u
+	// m = u!
+
+		// kaascode
+		// GEEN NIEUWE VARS DECLAREREN MIDDEN IN FUNCTIE! hier geen unsigned char k=0; meer declareren!
+		k=0;
 		// TODO for met break ipv while?
 		while(m[SIZE-1-k] == n[SIZE-1-k]) //Search for the first two words that are different, starting from MSB
 		{ 
@@ -305,7 +261,11 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 			}
 			m[j] = (unsigned char) (SIZE-c); // modulo NEED kaas wat is dit? en klopt het zoals ik het nu doe? 
 		}
-*/
+
+	// assign output
+	// memcpy is niet sneller, maar werkt wel!
+	// copy zelfs helemaal niet nodig als m op de plaats van res in het geheugen wordt genomen
+	// als je dit echter verwijderd, verslechtert de tijd! (compiler doet rare dingen, houdt m lokaal of zo?)
 	for(k=0; k<SIZE; k++)
 	{
 		res[k]=m[k];	
