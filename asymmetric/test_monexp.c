@@ -30,19 +30,25 @@ int main()
 	signed int i;
 	
 	
-	montgomery_exponentiation(ciphertext,b,e,n);
+	montgomery_exponentiation(ciphertext,b,e,EXPONENT_LENGTH,n);
 	printf("\nResult of monexp ENC is:\n");
 	for(i=0; i<SIZE; i++)
 	{
 		fprintf(stdout,"0x%02X,", ciphertext[i]);
 	}
 	
-	/*montgomery_exponentiation(plaintext,ciphertext,d,n);
+	montgomery_exponentiation(plaintext,ciphertext,d,DEXPONENT_LENGTH,n);
 	printf("\nResult of monexp DEC is:\n");
 	for(i=0; i<SIZE; i++)
 	{
 		fprintf(stdout,"0x%02X,", plaintext[i]);
-	}*/
+	}
+	for(i=0;i<SIZE;i++){
+		if(plaintext[i]!=b[i]){
+			printf("\nDECRYPTED TEXT IS NOT EQUAL TO MESSAGE");
+			break;
+		}
+	}
 	
 	printf("\n");
 	return 0;

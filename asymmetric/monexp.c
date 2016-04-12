@@ -19,7 +19,7 @@
 #include "monmult.h"
 #include "monexp.h"
 
-void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent, uint8_t *n)
+void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,uint8_t exponent_length, uint8_t *n)
 {
 	// calc rmodn
 	// calc r2modn
@@ -38,18 +38,28 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent, u
 	}
 	
 	//2
+	#if MONT_DEBUG
 	printf("\n[EXP] Step 2\n");
-	for(i=EXPONENT_LENGTH-1;i>=0; i--){
+	#endif
+	for(i=exponent_length-1;i>=0; i--){
 		for(j=7;j>=0;j--){
 			if(bln_exp_start){
 				montgomery_multiplication(A,A,A,n);
 				if((exponent[i]>>j) & 0x01){
+					#if MONT_DEBUG
 					printf("\n[EXP] Bit %d of the exponent is: 1\n",(i*8)+j);
+					#endif
 					montgomery_multiplication(A,A,xtilde,n);
-				}else{printf("\n[EXP] Bit %d of the exponent is: 0\n",(i*8)+j);}
+				}else{
+					#if MONT_DEBUG
+					printf("\n[EXP] Bit %d of the exponent is: 0\n",(i*8)+j);
+					#endif
+					}
 			}else{
 				if((exponent[i]>>j) & 0x01){
+					#if MONT_DEBUG
 					printf("\n[EXP] Bit %d of the exponent is the first nonzero bit\n",(i*8)+j);
+					#endif
 					bln_exp_start=1;
 					montgomery_multiplication(A,A,A,n);
 					montgomery_multiplication(A,A,xtilde,n);
@@ -57,9 +67,13 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent, u
 			}
 		}
 	}
+	#if MONT_DEBUG
 	printf("\n[EXP] Step 3:\n");
+	#endif
 	montgomery_multiplication(A,A,one,n);
+	#if MONT_DEBUG
 	printf("\n[EXP] Step 4:\n");
+	#endif
 	for(i=0;i<SIZE;i++){ // Copy A into res
 		res[i] = A[i];
 	}

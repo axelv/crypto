@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "monmult.h"
-#define MONT_DEBUG 1
 /*
 // NEED TO CHANGE SHIFTING AND MASKING (from >>8 to >>16 for example and from && xff to &&xffff)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 uint16_t a16[SIZE] = {0x71A3,0x179,0xF2FC,0xC793,0x691C,0x672D,0x2B38,0x1A7C,0x8840,0x9BBA,0x5310,0xED65,0x39FE,0x77B4,0xC83B,0xB29B,0xB1E4,0xC9A3,0xC8CD,0x69F2,0x9101,0x6787,0x6EAC,0xF156,0xBF60,0xF1E,0xA853,0x40AF,0x76DB,0xEAB2,0xDD90,0x40FF,0xD20C,0xDC4D,0xB35E,0xFAE7,0x53B4,0x755E,0x910B,0x1492,0xD87E,0xA7B8,0x9505,0x55D0,0x3097,0x4178,0xEF81,0x64C6,0x4A9F,0x4A9C,0xB3A,0xD8CA,0x1A9C,0xA764,0x6EA9,0xAC8,0xCEE5,0x3BE2,0x8A73,0xF0EF,0xA6E4,0x2640,0xD9F3,0x1F50};
@@ -107,8 +106,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		uint8_t min_n0 = (-n[0]) & 0xFF;
 		//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
 		uint8_t nprime_0 = mod_inverse(min_n0);
+		#if MONT_DEBUG
 		fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
-
+		#endif
 		for(k=0; k<SIZE; k++)
 		{
 			for(j=0; j<k; j++) //deze loop wordt bij de eerste iteratie van i niet uitgevoerd
@@ -231,7 +231,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		// if u>=n then return u-n else return u
 		if(t[0]!=0){
 			// u>n, subtraction needed
+			#if MONT_DEBUG
 			printf("\n t[0] is %02X : u>n, subtraction needed.",t[0]);
+			#endif
 			c=0;
 			for(it=0;it<SIZE;it++){
 				r = (m[it] - n[it] + c);
@@ -250,7 +252,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		}else{
 			for(it=SIZE-1; it>=0;it--){
 				if(m[it]>n[it]){
+					#if MONT_DEBUG
 					printf("subtraction needed.");
+					#endif
 					// u>n, subtraction needed
 					c=0;
 					for(it=0;it<SIZE;it++){
