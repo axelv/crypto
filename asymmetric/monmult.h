@@ -1,5 +1,5 @@
 /***********************************************************************
-* FILENAME :        monmult.h       VERSION: 1.0
+* FILENAME :        monmult.h     
 *
 * DESCRIPTION :
 *       Header file of monmult.c, exposing the function and defining
@@ -8,13 +8,13 @@
 *
 * NOTES : 
 * 
-* AUTHOR :    mraes        START DATE :    25 Mar 16
+* AUTHOR :    mraes
 *
 *
 *****/
 #ifndef __MONMULT_H__
 #define __MONMULT_H__
-#define SIZE 128 // size of modulus in BYTES
+#define SIZE 156 // size of modulus in BYTES
 #define MWORDSIZE 8 // in bits
 #define MONT_DEBUG 0
 

@@ -1,5 +1,5 @@
 /***********************************************************************
-* FILENAME :        monexp.h       VERSION: 1.0
+* FILENAME :        monexp.h   
 *
 * DESCRIPTION :
 *       Header file of monexp.c, exposing the function and defining
@@ -8,7 +8,7 @@
 *
 * NOTES : 
 * 
-* AUTHOR :    mraes        START DATE :    25 Mar 16
+* AUTHOR :    mraes     
 *
 *
 *****/
