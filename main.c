@@ -3,6 +3,8 @@
 #include 	<stdbool.h>
 #include    "tools/tools.c"
 #include    "constants.h"
+#include	"packman/packman_master.h"
+#include	"packman/packman_slave.h"
 //#include	"message.c"
 
 int main(){
