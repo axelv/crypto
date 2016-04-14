@@ -9,10 +9,6 @@ AV: Replace the predefined secret random numbers with a call to bbs.c
 
 AV: Reconsider the use of 2PSIZE for gyx/gxy
 
-AV: Add PKCS formatting between SHA2-256 and RSA
-
-
-To be implemented: RSA signing using Mont Exponentiation. Need also generate: PKCS #1 1.5 DigestInfo structures for SHA2-256. (See Toledo)
 
 To be implemented: STS (Diffie Hellman) using Mont Exponentiation
 - [ ] **Data Encryption (OCB)**
@@ -32,13 +28,11 @@ AV: Change the typdef 'unsigned char' to uint8_t etc.
 - [ ] **Create 'make'-file** (http://www.gnu.org/software/make/manual/make.html#Introduction)
 
 ##Notes:
-- To test ocb, compile using: ***gcc aes.c ocb.c -o test***
 - *Do not use malloc( )!!*
 - The order of a function’s arguments is important! If a function has arguments that specify
 input and output parameters, then the output parameters should be specified before the
 input parameters
 - Use header files to centralize all constants and types you use in your *.c-files
-- 
 ##Possible further optimisations (for DSP phase):
 - Montgomery Mult:8bit operands should be changed to 32 bit in the future (might give boost to efficiency). 
 - Exponentiation: We mostly need squaring so maybe implement a more efficient MontSq(x) instead of MontMult(x,x)
