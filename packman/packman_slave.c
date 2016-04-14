@@ -1,4 +1,4 @@
-#include "packman.h"
+#include "packman_slave.h"
 
 static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t length){
 	uint8_t a[AUTHBYTES] = {DATA, 0,}; 				//veranderen door memcpy

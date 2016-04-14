@@ -1,4 +1,4 @@
-#include "packman.h"
+#include "packman_master.h"
 
 static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t length){
 	uint8_t a[AUTHBYTES] = {DATA,0,}; 				
@@ -51,7 +51,6 @@ void m_create_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t typ
 	}
 	m_seq = m_seq + 1;
 }
-
 int m_validate_packet(uint8_t *data, uint8_t *packet){
 	int is_valid = -1;
 	uint8_t type = packet[0];
