@@ -28,22 +28,10 @@
 /  To compile: gcc -lcrypto ocb_ref.c                                      */
 
 #include <string.h>
-#include "aes.h"
-#include <stdio.h>
+#include "aes.c"
+#include <stdio.h> //MAG WEG??
 #include <stdlib.h> // MAG WEG??? 
-
-
-#define KEYBYTES   (128/8)  // = 128 bit = 16 byte 
-#define NONCEBYTES (96/8)
-#define TAGBYTES   (128/8)
-#define BLOCKBYTES (128/8)
-
-
-#if !(KEYBYTES==16 || KEYBYTES==24 || KEYBYTES==32) ||  \
-     (NONCEBYTES > 15 || NONCEBYTES < 0) ||             \
-     (TAGBYTES > 16 || TAGBYTES < 1)
-#error -- KEYBYTES, NONCEBYTES, or TAGBYTES is an illegal value
-#endif
+#include "../constants.h"
 
 typedef unsigned char block[16];
 
@@ -270,60 +258,4 @@ int ocb_decrypt(unsigned char *p, unsigned char *k, unsigned char *n,
     return ocb_crypt(p, k, n, a, abytes, c, cbytes, OCB_DECRYPT);
 }
 
-/* ------------------------------------------------------------------------- */
 
-
-int main() {
-    unsigned char m[BLOCKBYTES] = "HALLO_IKBEN_KAAS";	//kaas: plaintext - 128 bit  array (16 bytes)
-	unsigned char a[BLOCKBYTES] = "_GEHEIM_BERICHT_";   //kaas: authenticated data
-    unsigned char k[KEYBYTES] = "3LLEBBLAP3EVUIOP";		//kaas: symmetric key - 96 bit  array (12 bytes)
-	unsigned char n[NONCEBYTES] = "27X63WKO3X8F";		//kaas: noncebytes to create L-table
-    unsigned char p[BLOCKBYTES];						//kaas: decyphered plaintext 
-	unsigned char c[BLOCKBYTES+TAGBYTES] = {0,};		//kaas: cyphertext
-    int result_msg;										//kaas: boolean to check if the initial plaintext = received plaintext
-	int result_tag;										//kaas: boolean to check if the AUTH TAG is valid
-	int i;
-	
-	
-	ocb_encrypt(c, k, n, a, BLOCKBYTES, m, BLOCKBYTES);
-
-	printf("Plaintext (CHAR): \n");
-	for (i=0; i<BLOCKBYTES; i++) printf("%c", m[i]);
-	printf("\n");
-	printf("\n");
-	
-	printf("Authenticated Data (CHAR): \n");
-	for (i=0; i<BLOCKBYTES; i++) printf("%c", a[i]);
-	printf("\n");
-	printf("\n");
-	
-	printf("Encryptionkey (HEX): \n");
-	for (i=0; i<KEYBYTES; i++) printf("%02X", k[i]);
-	printf("\n");
-	printf("\n");
-	
-	printf("Ciphertext (HEX) & Tag (HEX): \n");
-	for (i=0; i<BLOCKBYTES; i++) printf("%02X", c[i]);
-    printf("\n");
-	for (i=BLOCKBYTES; i<BLOCKBYTES+TAGBYTES; i++) printf("%02X", c[i]);
-    printf("\n");
-	printf("\n");
-	result_tag = ocb_decrypt(p, k, n, a, BLOCKBYTES ,c , BLOCKBYTES+TAGBYTES);
-	
-	printf("Output plaintext (CHAR): \n");
-	for (i=0; i<BLOCKBYTES; i++) printf("%c", p[i]);
-    printf("\n");
-	printf("\n");
-		
-	result_msg = memcmp(p,  m, BLOCKBYTES);
-	if(result_msg || result_tag){
-		printf("FAIL \n");
-		printf("Result Tag: %d \n", result_tag);
-		printf("Result message: %d \n", result_msg);
-		
-	}else{
-		printf("Well done! \n");
-		printf("Result Tag: %d \n", result_tag);
-		printf("Result message: %d \n \n", result_msg);
-	}
-}
