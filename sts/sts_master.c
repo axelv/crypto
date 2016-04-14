@@ -57,7 +57,7 @@ uint8_t *gy = (uint8_t *)(gyx);
 uint8_t *gx = (uint8_t *)(gyx+PSIZE);
 
 	
-//Shared key for RSA
+//Shared key for AES
 static uint8_t K[PSIZE] =  {0,};
 
 /************************/
@@ -77,20 +77,20 @@ void init_connection(uint8_t *message){
 /* ------------------------------------------------------------------------- */
 /* Validate the message received from the slave */
 bool validate_slave(uint8_t *message){
-	uint8_t *signed_msg;
+	uint8_t signed_msg[PSIZE];
+	uint8_t encrypted_msg[PSIZE];
 	//copy g^y to the first and the last PSIZE bytes of gyx
 	memcpy(gy, message, PSIZE);
 	memcpy(gyx+2*PSIZE, message, PSIZE);
 	
 	//RSA SIGNING
-	uint8_t encrypted_msg[PSIZE];
-	//calculate hash S(g^y,g^x)
-    SHA256_Data(gyx, 2*PSIZE, signed_msg);
+	
 	//calcuate the shared key
 	montgomery_exponentiation(K, gy, x, p);
-	//encrypt (RSA) the hash with the shared key
-	montgomery_exponentiation(encrypted_msg, signed_msg, K, p);
-	
+	//TODO:encrypt (OCB) the hash with the shared key
+	ocb_decrypt(unsigned char *p, unsigned char *k, unsigned char *n,
+                unsigned char *a, unsigned abytes,
+                unsigned char *c, unsigned cbytes);	
 	//Check signature of slave
 	if(memcmp(encrypted_msg, message+PSIZE, PSIZE) == 0){
 		return true;

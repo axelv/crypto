@@ -1,6 +1,6 @@
 //HEADER
 #define IDBYTES    1
-#define LENBYTES   3
+#define LENBYTES   1
 #define	SEQBYTES   4
 #define AUTHBYTES  IDBYTES + LENBYTES + SEQBYTES //{ID, SEQ, LEN}
 
