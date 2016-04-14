@@ -33,6 +33,7 @@ AV: Change the typdef 'unsigned char' to uint8_t etc.
 input and output parameters, then the output parameters should be specified before the
 input parameters
 - Use header files to centralize all constants and types you use in your *.c-files
+
 ##Possible further optimisations (for DSP phase):
 - Montgomery Mult:8bit operands should be changed to 32 bit in the future (might give boost to efficiency). 
 - Exponentiation: We mostly need squaring so maybe implement a more efficient MontSq(x) instead of MontMult(x,x)
