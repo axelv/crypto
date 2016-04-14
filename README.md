@@ -35,5 +35,5 @@ input parameters
 - Use header files to centralize all constants and types you use in your *.c-files
 
 ##Possible further optimisations (for DSP phase):
-- Montgomery Mult:8bit operands should be changed to 32 bit in the future (might give boost to efficiency). 
-- Exponentiation: We mostly need squaring so maybe implement a more efficient MontSq(x) instead of MontMult(x,x)
+- Montgomery Mult:change 8 bit operands to 32 bit in the future (might give boost to efficiency). [Very difficult]
+- Exponentiation: We mostly need squaring so maybe implement a more efficient MontSq(x) instead of MontMult(x,x) [Fairly easy]
