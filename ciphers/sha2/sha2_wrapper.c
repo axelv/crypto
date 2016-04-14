@@ -1,5 +1,5 @@
  /***********************************************************************
-* FILENAME :        sha2_test.c 
+* FILENAME :        sha2_wrapper.c 
 *
 * DESCRIPTION :
 *       SHA256 wrapper
