@@ -1,23 +1,33 @@
 #include "packman.h"
 
-static uint8_t s_seq = 0;
+static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint16_t length){
+	uint8_t a[AUTHBYTES] = {DATA, 0,}; //veranderen door memcpy
+	uint8_t p[MAX_DATA_LENGTH];						//kaas: decyphered plaintext 
+	uint8_t c[MAX_DATA_LENGTH+TAGBYTES] = {0,};		//kaas: cyphertext
+	uint8_t nonce[256] = {0,};
+	memcpy(a+IDBYTES, &s_seq, SEQBYTES);
+	memcpy(a+IDBYTES+SEQBYTES, &length, LENBYTES);
+	SHA256_Data(&s_seq, SEQBYTES, nonce);
 
-static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t length){
-	uint8_t a[AUTHBYTES] = {DATA, s_seq, length};
-	uint8_t p[length];						//kaas: decyphered plaintext 
-	uint8_t c[MAX_PACK_LENGTH] = {0,};		//kaas: cyphertext
-	ocb_encrypt(c, key, n, a, AUTHBYTES, data, length);
+	ocb_encrypt(c, key, nonce, a, AUTHBYTES, data, length);
+	
+	//authenticated data
 	packet[0] = DATA;
-	packet[1] = s_seq;
-	packet[2] = length;
+	memcpy(packet+IDBYTES, &s_seq,SEQBYTES);
+	memcpy(packet+IDBYTES+SEQBYTES, &length, LENBYTES);
+	//encrypted data
 	memcpy(packet+AUTHBYTES,c,length+TAGBYTES);
 }
-static bool validate_data_packet(uint8_t data[MAX_DATA_LENGTH], uint8_t *packet){
-	uint8_t length = packet[2];
-	uint8_t result_tag = ocb_decrypt(data, key, n, packet, AUTHBYTES ,packet+3 , length+TAGBYTES);
+static int validate_data_packet(uint8_t data[MAX_DATA_LENGTH], uint8_t *packet){
+	uint8_t length[LENBYTES];
+	uint8_t nonce[256];
+	SHA256_Data(packet+IDBYTES, SEQBYTES, nonce);
+		
+	memcpy(length, packet+IDBYTES+SEQBYTES, LENBYTES);
+	uint8_t result_tag = ocb_decrypt(data, key, nonce, packet, AUTHBYTES ,packet+AUTHBYTES , *length+TAGBYTES);
 	return result_tag;
 }
-void s_create_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t type, uint8_t length){
+void s_create_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t type, uint16_t length){
 	if(type == EST1){
 		
 	}
@@ -36,16 +46,13 @@ void s_create_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t typ
 	s_seq = s_seq + 1;
 }
 
-bool s_validate_packet(uint8_t *data, uint8_t *packet){
-	bool is_valid = false;
+int s_validate_packet(uint8_t *data, uint8_t *packet){
+	int is_valid = -1;
 	uint8_t type = packet[0];
-	uint8_t received_seq = packet[1];
-	printf("seq: %d \n",s_seq);
-	printf("received_seq: %d \n",received_seq);
-	if(received_seq >= s_seq){
-		printf("received_seq >= seq \n");
+
+	if(memcmp(packet+IDBYTES, &s_seq, SEQBYTES)>=0){
 		
-		s_seq = received_seq + 1;
+		s_seq = (uint32_t )packet[IDBYTES]+ 1;
 		if(type == (uint8_t) EST1){
 			
 		}
