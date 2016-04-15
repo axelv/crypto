@@ -6,6 +6,7 @@ Repository for P&D: Crypto Team 1.
 - [ ] **Key Establishment (STS + RSA + SHA256)**
 
 AV: Replace the predefined secret random numbers with a call to bbs.c
+WE SHOULD REPLACE BBS WITH AES-CTR!!!
 
 AV: Reconsider the use of 2PSIZE for gyx/gxy
 
