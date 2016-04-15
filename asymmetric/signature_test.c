@@ -15,11 +15,26 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "signatures.h"
-#define SIZE 128
-#define EXPONENT_LENGTH 2
+#include "keys.c"
+#include "monmult.h" // for the SIZE parameter (will be moved)
+#include "monexp.h" // for the EXPONENT_LENGTH parameter (will be moved)
 
 void main(){
 	// TEST SIGNING the msg "abc" (0x61,0x62,0x63 in hex)
+	/*uint8_t master_privkey[SIZE];
+	uint8_t master_pubkey[3];
+	uint8_t master_modulus[SIZE];
+	uint8_t slave_privkey[SIZE];
+	uint8_t slave_pubkey[3];
+	uint8_t slave_modulus[SIZE];
+	
+	// These functions are needed for transformation to Little Endian
+	get_master_modulus(master_modulus);
+	get_slave_modulus(slave_modulus);
+	get_master_privkey(master_privkey);
+	get_slave_privkey(slave_privkey);*/
+	
+	
 	
 	uint8_t msg[3] = {0x61,0x62,0x63};
 	uint8_t msg_signature[SIZE];

@@ -16,6 +16,9 @@
 #include <string.h> // for memcpy and memcmp
 #include "monexp.h"
 #include "monmult.h"
+#include "signatures.h"
+
+#define SIGNATURE_DEBUG 1 // enable debug statements for this module
 
 /* From RFC 3447, Public-Key Cryptography Standards (PKCS) #1: RSA
  * Cryptography Specifications Version 2.1.

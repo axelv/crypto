@@ -15,11 +15,6 @@
 
 #include <stdint.h>
 
-#ifndef SIGNATURE_DEBUG
-#define SIGNATURE_DEBUG 0
-#endif
-
-
 // S is the signature of M (a message with length M_length), using privkey (length privkey_length) and modulus in the signing operation.
 void RSASSA_PKCS1_V1_5_SIGN(uint8_t *S,uint8_t *privkey,unsigned int privkey_length, uint8_t *modulus, uint8_t *M, unsigned int M_length);
 
