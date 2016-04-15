@@ -39,3 +39,4 @@ input parameters
 ##Possible further optimisations (for DSP phase):
 - Montgomery Mult:change 8 bit operands to 32 bit in the future (might give boost to efficiency). [Very difficult]
 - Exponentiation: We mostly need squaring so maybe implement a more efficient MontSq(x) instead of MontMult(x,x)
+- General restructuring of crypto code might give little boost?
