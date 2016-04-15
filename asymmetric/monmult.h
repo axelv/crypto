@@ -14,7 +14,7 @@
 *****/
 #ifndef __MONMULT_H__
 #define __MONMULT_H__
-#define SIZE 128 // size of modulus in BYTES
+#define SIZE 156 // size of modulus in BYTES
 #define MWORDSIZE 8 // in bits
 #define MONT_DEBUG 0
 

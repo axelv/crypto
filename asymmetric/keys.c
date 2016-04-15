@@ -1,4 +1,5 @@
 #include <stdint.h>
+
 const unsigned char master_modulus[157] =
 	"\x00\xb2\x20\x91\x91\x03\xe9\x2f\x99\x59\xa3\x65\x80\x2c\xb5"
 	"\x25\x03\x03\xaf\xe9\x3c\x42\x13\x07\xc2\x5e\x15\x1b\x21\x09"
@@ -15,11 +16,17 @@ const unsigned char master_modulus[157] =
 void get_master_modulus(uint8_t *modulus_in_LE){ // for conversion to little endian
 	signed int i;
 	for(i=156;i>=0;i--){
-	modulus_in_LE[156-i] = master_modulus[i+1];
+	modulus_in_LE[156-i] = master_modulus[i];
 	}
 }
 const unsigned char master_public_exponent[3] =
 	"\x01\x00\x01";
+void get_master_pubkey(uint8_t *pubkey_in_LE){ // for conversion to little endian
+	signed int i;
+	for(i=2;i>=0;i--){
+	pubkey_in_LE[2-i] = master_public_exponent[i];
+	}
+}
 	
 const unsigned char master_private_exponent[156] =
 	"\x3c\x13\xf0\x04\xd1\x24\xdd\x01\x03\xd2\xb0\x71\x42\xa2\xf6"
@@ -37,6 +44,7 @@ const unsigned char master_private_exponent[156] =
 void get_master_privkey(uint8_t *privkey_in_LE){
 	signed int i;
 	for(i=155;i>=0;i--){
+          privkey_in_LE[155-i] = master_private_exponent[i];
 	}
 }
 	
@@ -56,12 +64,18 @@ const unsigned char slave_modulus[157] =
 void get_slave_modulus(uint8_t *modulus_in_LE){ // for conversion to little endian
 	signed int i;
 	for(i=156;i>=0;i--){
-	modulus_in_LE[156-i] = slave_modulus[i+1];
+	modulus_in_LE[156-i] = slave_modulus[i];
 	}
 }
 
 const unsigned char slave_public_exponent[3] =
 	"\x01\x00\x01";
+void get_slave_pubkey(uint8_t *pubkey_in_LE){ // for conversion to little endian
+	signed int i;
+	for(i=2;i>=0;i--){
+	pubkey_in_LE[2-i] = slave_public_exponent[i];
+	}
+}
 
 const unsigned char slave_private_exponent[156] =
 	"\x07\x8e\x74\x79\x5c\xb9\xa9\xda\x98\xf8\x0e\xf0\xad\xa4\xed"
