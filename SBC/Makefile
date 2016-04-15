@@ -4,7 +4,7 @@ CFLAGS=-Wall -ansi -pedantic-errors -g -O0 -std=c99
 rebuild: clean all	# first do clean, then compile SBC
 
 clean:
-	rm -f *.o SBC checkAnalSynth
+	rm -f *.o SBC checkAnalSynth crypto
 	
 all: SBC checkAnalSynth
 
@@ -16,5 +16,5 @@ SBC: main.o wavpcm_io.o encoder.o decoder.o
 checkAnalSynth: checkAnalSynth.o wavpcm_io.o encoder.o decoder.o
 	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
 	
-crypto: ../crypto_wrapper.o ../packman_slave.o ../packman_master.o ../ocb.o ../sha2.o ../sha2_wrapper.o
+crypto: main.o wavpcm_io.o encoder.o decoder.o ../crypto_wrapper.o ../packman_slave.o ../packman_master.o ../ocb.o ../sha2.o ../sha2_wrapper.o
 	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@

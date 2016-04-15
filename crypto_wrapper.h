@@ -1,7 +1,7 @@
 #include    <stdint.h>
 #include 	<stdio.h>
 #include 	<stdbool.h>
-#include    "tools/tools.c"
+#include    "tools/tools.h"
 #include    "constants.h"
 #include	"packman/packman_master.h"
 #include	"packman/packman_slave.h"
