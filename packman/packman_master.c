@@ -2,7 +2,6 @@
 
 static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t length){
 	uint8_t a[AUTHBYTES] = {DATA,0,}; 				
-	uint8_t p[MAX_DATA_LENGTH];						//kaas: decyphered plaintext 
 	uint8_t c[MAX_DATA_LENGTH+TAGBYTES] = {0,};		//kaas: cyphertext
 	uint8_t nonce[32] = {0,};
 	uint8_t seq8[4] = {0,};
@@ -11,11 +10,7 @@ static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, u
 	memcpy(a+IDBYTES+SEQBYTES, &length, LENBYTES);
 	int32_to_int8(seq8, m_seq);
 	compute_SHA256(nonce, seq8, SEQBYTES);
-	
-	int i;
-	for(i=0;i<32;i++) printf("%02x",nonce[i]);
-	printf("\n");
-	
+		
 	ocb_encrypt(c, key, nonce, a, AUTHBYTES, data, length);
 	
 	//authenticated data

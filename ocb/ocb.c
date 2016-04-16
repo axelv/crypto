@@ -28,9 +28,10 @@
 /  To compile: gcc -lcrypto ocb_ref.c                                      */
 
 #include <string.h>
-#include "aes.c"
 #include <stdio.h> //MAG WEG??
-#include <stdlib.h> // MAG WEG??? 
+#include <stdlib.h> // MAG WEG???
+#include "ocb.h"
+#include "aes.h"
 #include "../constants.h"
 
 typedef unsigned char block[16];
@@ -241,8 +242,8 @@ static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
 
 /* ------------------------------------------------------------------------- */
 
-#define OCB_ENCRYPT 1
-#define OCB_DECRYPT 0
+//#define OCB_ENCRYPT 1
+//#define OCB_DECRYPT 0
 
 void ocb_encrypt(unsigned char *c, unsigned char *k, unsigned char *n,
                  unsigned char *a, unsigned abytes,

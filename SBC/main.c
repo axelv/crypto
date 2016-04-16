@@ -6,7 +6,6 @@
 #include "codec.h"
 #include "encoder.h"
 #include "decoder.h"
-#include "../crypto_wrapper.h"
 
 /****************************
  * Define filter parameters *
@@ -99,19 +98,6 @@ int main (int argc, char *argv[])
 	  quantise(buffer,&leftEncChunk,&rightEncChunk,encodedSigBuffer);
 
 	  /* if required, dump compressed output */
-		
-	  /***************************************/
-	  /*            CRYPTOSHIZLE             */
-	  /***************************************/
-	  uint8_t packet[MAX_PACK_LENGTH];
-	  uint8_t data_in[MAX_DATA_LENGTH];
-	  uint8_t data_out[MAX_DATA_LENGTH];
-	  memcpy(data_in, buffer, BUFFERSIZE);
-	  
-	  encrypt_data(packet, data_in, BUFFERSIZE);
-	  decrypt_data(data_out, packet);
-	  
-	  memcpy(buffer, data_out, BUFFERSIZE);	  
 		
 	  /* inverse transform buffer */
 

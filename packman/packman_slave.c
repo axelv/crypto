@@ -2,7 +2,6 @@
 
 static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t length){
 	uint8_t a[AUTHBYTES] = {DATA, 0,}; 				//veranderen door memcpy
-	uint8_t p[MAX_DATA_LENGTH];						//kaas: decyphered plaintext 
 	uint8_t c[MAX_DATA_LENGTH+TAGBYTES] = {0,};		//kaas: cyphertext
 	uint8_t nonce[32] = {0,};
 	uint8_t seq8[4] = {0,};
@@ -23,7 +22,7 @@ static void create_data_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, u
 }
 static int validate_data_packet(uint8_t data[MAX_DATA_LENGTH], uint8_t *packet){
 	uint8_t length[LENBYTES];
-	uint8_t nonce[100] = {0,};
+	uint8_t nonce[32] = {0,};
 	compute_SHA256(nonce, packet+IDBYTES, SEQBYTES);
 	memcpy(length, packet+IDBYTES+SEQBYTES, LENBYTES);
 	uint8_t result_tag = ocb_decrypt(data, key, nonce, packet, AUTHBYTES ,packet+AUTHBYTES , *length+TAGBYTES);
@@ -65,7 +64,6 @@ int s_validate_packet(uint8_t *data, uint8_t *packet){
 			
 		}
 		if(type == DATA){
-			printf("Validate data. \n");
 			is_valid = validate_data_packet(data, packet);	
 		}
 		if(type == EOT){

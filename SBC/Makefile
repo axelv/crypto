@@ -1,3 +1,4 @@
+CC=gcc
 LDFLAGS=-lm 	# add -ggdb flag for debugging with gdb in Eclipse on Mac OSX
 CFLAGS=-Wall -ansi -pedantic-errors -g -O0 -std=c99
 
