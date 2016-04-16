@@ -28,6 +28,7 @@ AV: Check if Montgomery squaring is faster than standard squaring operation of c
 AV: Change the typdef 'unsigned char' to uint8_t etc.
 
 - [ ] **Create 'make'-file** (http://www.gnu.org/software/make/manual/make.html#Introduction)
+Done. Run 'make rebuild' to recompile the full project, the executable will be stored in 'integration'.
 
 ##Notes:
 - *Do not use malloc( )!!*
