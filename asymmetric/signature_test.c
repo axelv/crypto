@@ -1,79 +1,92 @@
-#include <stdin.h>
+/***********************************************************************
+* FILENAME :        signature_test.c       VERSION: 1.0
+*
+* DESCRIPTION :
+*       Testing of Signature Generation and Validation
+*
+*
+* NOTES : 
+* 
+* AUTHOR :    mraes 
+*
+*
+*****/
+
+#include <stdio.h>
 #include <stdint.h>
+#include "signatures.h"
+#include "keys.c" // Holds keys in Big Endian and functions to get them in Little Endian
+#include "monmult.h" // for the SIZE parameter (will be moved)
+#include "monexp.h" // for the EXPONENT_LENGTH parameter (will be moved)
 
-uint8_t rsa_privkey[SIZE];
-uint8_t rsa_pubkey[SIZE];
-uint8_t msg[];
-uint8_t msg_hash[];
+void main(){
+     unsigned int i;
+	// TEST SIGNING the msg "abc" (0x61,0x62,0x63 in hex)
+	uint8_t master_privkey[SIZE];
+	uint8_t master_pubkey[3];
+	uint8_t master_mod[SIZE];
+	uint8_t slave_privkey[SIZE];
+	uint8_t slave_pubkey[3];
+	uint8_t slave_mod[SIZE];
+	
+	// These functions are needed for transformation to Little Endian, they get the keys from keys.c
+	get_master_modulus(master_mod);
+     printf("\n[RSA SETUP] Master Modulus\n");
+     for(i=0;i<SIZE;i++){
+          printf("0x%02X,",master_mod[i]);
+     }
+     printf("\n");
 
-/* From RFC 3447, Public-Key Cryptography Standards (PKCS) #1: RSA
- * Cryptography Specifications Version 2.1.
- *
- *     id-sha256    OBJECT IDENTIFIER ::=
- *       {joint-iso-itu-t(2) country(16) us(840) organization(1)
- *         gov(101) csor(3) nistalgorithm(4) hashalgs(2) 1}
- */
-const uint8_t
-sha256_prefix[] =
-{
-  /* 19 octets prefix, 32 octets hash, total 51 */
-  0x30,      49, /* SEQUENCE */
-    0x30,    13, /* SEQUENCE */
-      0x06,   9, /* OBJECT IDENTIFIER */
-        0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01,
-      0x05,   0, /* NULL */
-    0x04,    32  /* OCTET STRING */
-      /* Here comes the raw hash value */
-};
+	get_slave_modulus(slave_mod);
+     printf("\n[RSA SETUP] Slave Modulus\n");
+     for(i=0;i<SIZE;i++){
+          printf("0x%02X,",slave_mod[i]);
+     }
+     printf("\n");
 
-unsigned int sha256_prefix_size = sizeof(sha256_prefix);
+	get_master_privkey(master_privkey);
+     printf("\n[RSA SETUP] Master Private Key\n");
+     for(i=0;i<SIZE;i++){
+          printf("0x%02X,",master_privkey[i]);
+     }
+     printf("\n");
 
+	get_slave_privkey(slave_privkey);
+     printf("\n[RSA SETUP] Slave Private Key\n");
+     for(i=0;i<SIZE;i++){
+          printf("0x%02X,",slave_privkey[i]);
+     }
+     printf("\n");
 
-void EMSA-PKCS1-V1_5-ENCODE(uint8_t *EM, uint8_t *M, int k){
-/*Applying the EMSA-PKVS1-V1_5-ENCODE encoding operation
-to the message M to produce an encoded message EM of length k octets
-*/
-}
+	get_master_pubkey(master_pubkey);
+     printf("\n[RSA SETUP] Master Public Key\n");
+     for(i=0;i<3;i++){
+          printf("0x%02X,",master_pubkey[i]);
+     }
+     printf("\n");
 
-void RSASSA-PKCS1-V1_5-SIGN(uint8_t *S,uint8_t *privkey, uint8_t *M){
-/*
-   RSASSA-PKCS1-V1_5-SIGN (K, M)
+	get_slave_pubkey(slave_pubkey);
+     printf("\n[RSA SETUP] Slave Public Key\n");
+     for(i=0;i<3;i++){
+          printf("0x%02X,",slave_pubkey[i]);
+     }
+     printf("\n");
+	
+	
+	
+	uint8_t msg[3] = {0x61,0x62,0x63};
+     unsigned int msg_length = sizeof(msg);
+	uint8_t msg_signature[SIZE];
 
-   Input:
-   K        signer's RSA private key
-   M        message to be signed, an octet string
+     // Generate Signature for MASTER
+     //RSASSA_PKCS1_V1_5_SIGN(msg_signature,master_privkey,SIZE,master_mod, msg, msg_length );
+     // VERIFY MASTER SIGNATURE
+	//uint8_t master_sigValid = RSASSA_PKCS1V1_5_VERIFY(msg, msg_length, msg_signature,master_pubkey, 3, master_mod);
+	//printf("\nMASTER Signature Valid: %d\n",master_sigValid);
 
-   Output:
-   S        signature, an octet string of length k, where k is the
-            length in octets of the RSA modulus n
-
-   Errors: "message too long"; "RSA modulus too short"
-*/
-
-// Step 1: EM = EMSA-PKCS1-V1_5-ENCODE (M, k)
-// Step 2: S = Sign EM using rsa_privkey
-// Step 3: output S
-}
-
-int RSASSA-PKCS1-V1_5-VERIFY(uint8_t *pubkey, uint8_t *M, uint8_t *S){
-/*
-   RSASSA-PKCS1-V1_5-VERIFY ((n, e), M, S)
-
-   Input:
-   (n, e)   signer's RSA public key
-   M        message whose signature is to be verified, an octet string
-   S        signature to be verified, an octet string of length k, where
-            k is the length in octets of the RSA modulus n
-
-   Output:
-   "valid signature" or "invalid signature"
-
-   Errors: "message too long"; "RSA modulus too short"
-*/
-
-
-// if signature valid:
-	// return 1
-// else 
-	// return 0
+     // Generate Signature for SLAVE
+     //RSASSA_PKCS1_V1_5_SIGN(msg_signature,slave_privkey,SIZE,slave_mod, msg, 3);
+     // VERIFY SLAVE SIGNATURE
+	//uint8_t slave_sigValid = RSASSA_PKCS1V1_5_VERIFY(msg, 3, msg_signature,slave_pubkey, 3,slave_mod);
+	//printf("\nSLAVESignature Valid: %d\n",slave_sigValid);
 }
