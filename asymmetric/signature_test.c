@@ -36,14 +36,14 @@ void main(){
           printf("0x%02X,",master_mod[i]);
      }
      printf("\n");
-
+	 
 	get_slave_modulus(slave_mod);
      printf("\n[RSA SETUP] Slave Modulus\n");
      for(i=0;i<SIZE;i++){
           printf("0x%02X,",slave_mod[i]);
      }
-     printf("\n");
-
+     printf("\n");	 
+	 
 	get_master_privkey(master_privkey);
      printf("\n[RSA SETUP] Master Private Key\n");
      for(i=0;i<SIZE;i++){
@@ -74,19 +74,19 @@ void main(){
 	
 	
 	
-	uint8_t msg[3] = {0x61,0x62,0x63};
-     unsigned int msg_length = sizeof(msg);
+	uint8_t msg[] = "The quick brown fox jumps over the lazy dog";
+    unsigned int msg_length = sizeof(msg);
 	uint8_t msg_signature[SIZE];
 
      // Generate Signature for MASTER
-     //RSASSA_PKCS1_V1_5_SIGN(msg_signature,master_privkey,SIZE,master_mod, msg, msg_length );
+    RSASSA_PKCS1_V1_5_SIGN(msg_signature,master_privkey,SIZE,master_mod, rmodn_master, r2modn_master, msg, msg_length );
      // VERIFY MASTER SIGNATURE
-	//uint8_t master_sigValid = RSASSA_PKCS1V1_5_VERIFY(msg, msg_length, msg_signature,master_pubkey, 3, master_mod);
-	//printf("\nMASTER Signature Valid: %d\n",master_sigValid);
-
+	uint8_t master_sigValid = RSASSA_PKCS1V1_5_VERIFY(msg, msg_length, msg_signature,master_pubkey, 3, master_mod, rmodn_master, r2modn_master);
+	printf("\nMASTER Signature Valid: %d\n",master_sigValid);
+	printf("\n ------------------------------------------------------------------------------------------------------\n");
      // Generate Signature for SLAVE
-     //RSASSA_PKCS1_V1_5_SIGN(msg_signature,slave_privkey,SIZE,slave_mod, msg, 3);
+     RSASSA_PKCS1_V1_5_SIGN(msg_signature,slave_privkey,SIZE,slave_mod,rmodn_slave, r2modn_slave, msg, msg_length);
      // VERIFY SLAVE SIGNATURE
-	//uint8_t slave_sigValid = RSASSA_PKCS1V1_5_VERIFY(msg, 3, msg_signature,slave_pubkey, 3,slave_mod);
-	//printf("\nSLAVESignature Valid: %d\n",slave_sigValid);
+	uint8_t slave_sigValid = RSASSA_PKCS1V1_5_VERIFY(msg, msg_length, msg_signature,slave_pubkey, 3,slave_mod,rmodn_slave, r2modn_slave);
+	printf("\nSLAVESignature Valid: %d\n",slave_sigValid);
 }
