@@ -8,6 +8,9 @@ Repository for P&D: Crypto Team 1.
 **WE SHOULD REPLACE BBS WITH AES-CTR!!!**
 
 To be implemented: STS (Diffie Hellman) using Mont Exponentiation
+
+AV: Add check for g^y = 1 or 0
+
 - [ ] **Data Encryption (OCB)**
 
 Is deze code ANSI-C en voldoet het aan de specs in de opgave (volgorde van argumenten etc) of moet er herschreven worden?
@@ -25,7 +28,7 @@ AV: Check if Montgomery squaring is faster than standard squaring operation of c
 AV: Change the typdef 'unsigned char' to uint8_t etc.
 
 - [ ] **Create 'make'-file** (http://www.gnu.org/software/make/manual/make.html#Introduction)
--
+
 Done. Run 'make rebuild' to recompile the full project, the executable will be stored in 'integration'.
 
 ##Notes:
