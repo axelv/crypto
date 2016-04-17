@@ -5,12 +5,7 @@ Repository for P&D: Crypto Team 1.
 #TODO:
 - [ ] **Key Establishment (STS + RSA + SHA256)**
 
-AV: Replace the predefined secret random numbers with a call to bbs.c
-
 **WE SHOULD REPLACE BBS WITH AES-CTR!!!**
-
-AV: Reconsider the use of 2PSIZE for gyx/gxy
-
 
 To be implemented: STS (Diffie Hellman) using Mont Exponentiation
 - [ ] **Data Encryption (OCB)**
@@ -19,6 +14,8 @@ Is deze code ANSI-C en voldoet het aan de specs in de opgave (volgorde van argum
 - [ ] **Finite State Machine for protocol flow (for both Master and Slave)**
 
 Should be fairly straightforward
+
+AV: Add case for EOT that redirects the slave/master to initlialisation
 - [ ] **Make everything ANSI-C compliant!!!**
 
 - [ ] **Cryptographically Secure Pseudo Random Number Generator (CSPRNG)** (eg. Bum Bum Chup) using several entropy sources. (Needed for STS!)
@@ -28,6 +25,7 @@ AV: Check if Montgomery squaring is faster than standard squaring operation of c
 AV: Change the typdef 'unsigned char' to uint8_t etc.
 
 - [ ] **Create 'make'-file** (http://www.gnu.org/software/make/manual/make.html#Introduction)
+-
 Done. Run 'make rebuild' to recompile the full project, the executable will be stored in 'integration'.
 
 ##Notes:
