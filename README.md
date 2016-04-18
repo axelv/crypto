@@ -9,7 +9,7 @@ Repository for P&D: Crypto Team 1.
 
 To be implemented: STS (Diffie Hellman) using Mont Exponentiation
 
-AV: Add check for g^y = 1 or 0
+AV: Add check for g^y = 1 or 0 or modulus-1
 
 - [ ] **Data Encryption (OCB)**
 
