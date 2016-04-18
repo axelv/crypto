@@ -8,28 +8,14 @@
  * @author Axel Vanraes <axel.vanraes@student.kuleuven.be>
  * @author Micha묠Raes <michael.raes@student.kuleuven.be>
  */
-#include <stdint.h>
-#include <stdbool.h>
+
+//TODO in header plaatsen
 #include <stdio.h>
-
 #include "sts.h"
+#include "sts_master.h"
+#include "master_keys.c"
+#include "dh.c"
 
-static uint8_t p[PSIZE] = {0x50, 0x24, 0x6E, 0x0E, 0x44, 0xDD, 0xE3, 0x57, 0xEB, 0xB9, 0xEF, 0xCE, 0xB4, 0x10, 0x8D, 0xBF, 
-                    0xC8, 0xEA, 0xC3, 0x00, 0x0E, 0xCF, 0x52, 0x2D, 0x25, 0x9D, 0x87, 0xA6, 0x1D, 0x4A, 0xB5, 0x4D, 
-                    0x67, 0xBC, 0x85, 0xBA, 0x70, 0x43, 0xC2, 0x81, 0xBD, 0x2F, 0x64, 0x53, 0xED, 0x32, 0x3C, 0x2D, 
-                    0x31, 0x23, 0xCF, 0xD8, 0x0F, 0xE9, 0x13, 0x51, 0x2D, 0xF8, 0xAC, 0x36, 0xA6, 0x5D, 0x8F, 0x70, 
-                    0x22, 0x60, 0x82, 0x88, 0x8C, 0xE3, 0x43, 0x4A, 0x9F, 0x87, 0x05, 0xED, 0xC9, 0x13, 0x0A, 0xBE, 
-                    0xCF, 0x6F, 0x07, 0x41, 0x89, 0x7A, 0xE8, 0xBD, 0xF1, 0xDD, 0x33, 0x70, 0x80, 0xD0, 0x10, 0xA3, 
-                    0xD2, 0x25, 0xB3, 0xCC, 0x4C, 0x62, 0x19, 0xBC, 0x7A, 0x92, 0x8B, 0x46, 0xBC, 0x7A, 0xF4, 0xA7, 
-                    0xC6, 0xF7, 0x1A, 0x76, 0xEE, 0x6E, 0xAC, 0x03, 0x4D, 0xAA, 0x3F, 0xC9, 0x3E, 0xE5, 0x92, 0xC8,
-					0x50, 0x24, 0x6E, 0x0E, 0x44, 0xDD, 0xE3, 0x57, 0xEB, 0xB9, 0xEF, 0xCE, 0xB4, 0x10, 0x8D, 0xBF, 
-                    0xC8, 0xEA, 0xC3, 0x00, 0x0E, 0xCF, 0x52, 0x2D, 0x25, 0x9D, 0x87, 0xA6, 0x1D, 0x4A, 0xB5, 0x4D, 
-                    0x67, 0xBC, 0x85, 0xBA, 0x70, 0x43, 0xC2, 0x81, 0xBD, 0x2F, 0x64, 0x53, 0xED, 0x32, 0x3C, 0x2D, 
-                    0x31, 0x23, 0xCF, 0xD8, 0x0F, 0xE9, 0x13, 0x51, 0x2D, 0xF8, 0xAC, 0x36, 0xA6, 0x5D, 0x8F, 0x70, 
-                    0x22, 0x60, 0x82, 0x88, 0x8C, 0xE3, 0x43, 0x4A, 0x9F, 0x87, 0x05, 0xED, 0xC9, 0x13, 0x0A, 0xBE, 
-                    0xCF, 0x6F, 0x07, 0x41, 0x89, 0x7A, 0xE8, 0xBD, 0xF1, 0xDD, 0x33, 0x70, 0x80, 0xD0, 0x10, 0xA3, 
-                    0xD2, 0x25, 0xB3, 0xCC, 0x4C, 0x62, 0x19, 0xBC, 0x7A, 0x92, 0x8B, 0x46, 0xBC, 0x7A, 0xF4, 0xA7, 
-                    0xC6, 0xF7, 0x1A, 0x76, 0xEE, 0x6E, 0xAC, 0x03, 0x4D, 0xAA, 0x3F, 0xC9, 0x3E, 0xE5, 0x92, 0xC8};
 static uint8_t x[XYSIZE] = {0,};
 
 // DIFFERENT ALIASSES TO PREVENT CONFUSION
@@ -56,9 +42,6 @@ uint8_t *gy = (uint8_t *)(gyx);
 
 uint8_t *gx = (uint8_t *)(gyx+PSIZE);
 
-	
-//Shared key for AES
-static uint8_t K[PSIZE] =  {0,};
 
 /************************/
 /*   MASTER == Alice    */
@@ -67,46 +50,103 @@ static uint8_t K[PSIZE] =  {0,};
 /* ------------------------------------------------------------------------- */
 /* The master has to start the protocol by sending the message g^y. 
    The generator 'g' is a predetermined number. y is a secret random number. */
-void init_connection(uint8_t *message){
+   
+void init_connection(uint8_t message[PSIZE]){
+	uint8_t g[GSIZE];
+	uint8_t p[PSIZE];
+	
+	//generator
+	get_generator(g);
+	
+	//modulus
+	get_prime(p);
+	
 	//TODO: seed has to come from random inputs
 	generate_number(x, XYSIZE, 8);
-	montgomery_exponentiation(gx, g, x, p);
-	*message = *gx;
+	montgomery_exponentiation(gx, g, x, XYSIZE, p, rmodn_dh, r2modn_dh);
+
+	memcpy(message,gx,PSIZE); //TODO: gewoon adres toekennen aan message?
 }
 
 /* ------------------------------------------------------------------------- */
 /* Validate the message received from the slave */
-bool validate_slave(uint8_t *message){
-	uint8_t signed_msg[PSIZE];
-	uint8_t encrypted_msg[PSIZE];
+uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES]){
+	uint8_t signed_msg[SIGNSIZE];
+	uint8_t public_key[PUB_KEY];
+	uint8_t p[PSIZE];
+	uint8_t n[NSIZE];
+	uint8_t nonce[HASHSIZE];
+	
+	//generate nonce
+	compute_SHA256(nonce, seqnr, SEQBYTES);
+	
 	//copy g^y to the first and the last PSIZE bytes of gyx
 	memcpy(gy, message, PSIZE);
 	memcpy(gyx+2*PSIZE, message, PSIZE);
 	
-	//RSA SIGNING
+	//modulus p & n
+	get_slave_modulus(n);
+	get_prime(p);
+	
+	//public_key
+	get_slave_pubkey(public_key);
 	
 	//calcuate the shared key
-	montgomery_exponentiation(K, gy, x, p);
-	//TODO:encrypt (OCB) the hash with the shared key
-	ocb_decrypt(unsigned char *p, unsigned char *k, unsigned char *n,
-                unsigned char *a, unsigned abytes,
-                unsigned char *c, unsigned cbytes);	
-	//Check signature of slave
-	if(memcmp(encrypted_msg, message+PSIZE, PSIZE) == 0){
-		return true;
+	montgomery_exponentiation(K, gy, x, XYSIZE, p, rmodn_dh, r2modn_dh);
+	
+	//OCB-AES decrypt
+	
+	//ocb_decrypt(signed_msg, K, nonce, NULL, 0, message+PSIZE, CIPHSIZE);
+	memcpy(signed_msg, message+PSIZE, SIGNSIZE);
+	
+	//RSA VERIFY
+	if(RSASSA_PKCS1V1_5_VERIFY(gyx, 2*PSIZE, signed_msg, public_key, PUB_KEY, n, rmodn_slave, r2modn_slave)){
+		return 1;
 	}else{
-		return false;
+		return 0;
 	}
+	
 }
 /* ------------------------------------------------------------------------- */
 /* Send an encrypted and signed message to the slave */
-void reply_slave(uint8_t message[PSIZE]){
-	uint8_t *signed_msg;
+void reply_slave(uint8_t message[SIGNSIZE], uint8_t seqnr[SEQBYTES]){
+	uint8_t signed_msg[SIGNSIZE];
+	uint8_t private_key[PRIV_KEY];
+	uint8_t public_key[PUB_KEY];
+	uint8_t p[PSIZE];
+	uint8_t n[NSIZE];
+	uint8_t nonce[HASHSIZE];
+	
+	//generate nonce
+	compute_SHA256(nonce, seqnr, SEQBYTES);
+	
+	//modulus
+	get_master_modulus(n);
+	get_prime(p);
+	
+	//private key
+	get_master_privkey(private_key);	
+	
+	/*printf("\nrMODn: \n"); int i;
+	for(i=0;i<NSIZE;i++)printf("%02x",rmodn_master[i]);
+	printf("\n");
+	printf("\nr2RMODn: \n");
+	for(i=0;i<NSIZE;i++)printf("%02x",r2modn_master[i]);
+	printf("\n");
+	printf("\nPUB_KEY: \n");
+	for(i=0;i<PUB_KEY;i++)printf("%02x",public_key[i]);
+	printf("\n");
+	printf("\nPRIV_KEY: \n");
+	for(i=0;i<PRIV_KEY;i++)printf("%02x",private_key[i]);
+	printf("\n");
+	printf("\nModulus: \n");
+	for(i=0;i<NSIZE;i++)printf("%02x",n[i]);
+	printf("\n");*/
+	
 	//RSA SIGNING
-	//calculate hash S(g^y,g^x)
-	 SHA256_Data(gxy, 2*PSIZE, signed_msg);
-	//encrypt (RSA) the hash with the shared key
-	montgomery_exponentiation(message, signed_msg, K, p);	
+	RSASSA_PKCS1_V1_5_SIGN(signed_msg, private_key, PRIV_KEY, n, rmodn_master, r2modn_master, gxy, 2*PSIZE);
+	//OCB-AES encrypt
+	//ocb_encrypt(message, K, nonce, NULL, 0, signed_msg, SIGNSIZE);
 }
 
 

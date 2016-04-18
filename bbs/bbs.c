@@ -9,11 +9,11 @@
  * @author Micha묠Raes <michael.raes@student.kuleuven.be>
  */
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 
-// The maximum possible length (in bits) for the random bitstream.
-#define MAX_l 256
+#include "bbs.h"
+#include "../constants.h"
+
 
 /* Choose two primes p & q so that each congruent to 3 mod 4, then n = p*q. */
 	uint32_t n = 1049*1061; // = 1 112 989
@@ -29,15 +29,19 @@ void random_byte(uint8_t *byte, uint32_t *seed){
 
 /* ------------------------------------------------------------------------- */
 
-int generate_number(uint8_t *result, uint8_t len_bits, uint32_t seed) {
+void generate_number(uint8_t *result, uint8_t len_bits, uint32_t seed) {
 	
-	uint8_t l = max(MAX_l/8, len_bits/8); //Number of random bytes needed
-	uint8_t i; //max 256!!
+	uint16_t l = MAX_l; //Number of random bytes needed
+	if(memcmp(&l, &len_bits,2)<0){
+		l = len_bits;
+	}
+
+	uint16_t i; //max 256!!
 	// The 'seed' has to be a value between 1 & n-1 such that gcd(s,n) = 1
 	// TODO: check when the seed = n-2
 	seed = (seed % n-1)+1;	
 	
-	for(i=0; i < l; i++){
+	for(i=0; i < l/8; i++){
 		random_byte(result+i,&seed);
 	}	
 }

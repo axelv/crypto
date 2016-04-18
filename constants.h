@@ -10,11 +10,31 @@
 #define TAGBYTES   (128/8)
 #define BLOCKBYTES (128/8)
 
+//used in sts.h
+//RSA
+#define PRIV_KEY 156
+#define PUB_KEY 3
+#define NSIZE 157
+#define SIGNSIZE 156 //NEED: waarom is dit anders?
+#define CIPHSIZE 160
+#define HASHSIZE 256/8 /*size of the signed message*/
+
+//DH
+#define GSIZE (156)  /*size of the generator*/
+#define PSIZE (156) /*modulus and size of the message g^y & g^x */
+#define XYSIZE (256/8) /*size of the secrete private number*/
+
 #if !(KEYBYTES==16 || KEYBYTES==24 || KEYBYTES==32) ||  \
      (NONCEBYTES > 15 || NONCEBYTES < 0) ||             \
      (TAGBYTES > 16 || TAGBYTES < 1)
 #error -- KEYBYTES, NONCEBYTES, or TAGBYTES is an illegal value
 #endif
+
+//used in packman.h
+#define SEQINIT  0x32323232 //for SEQBYTES = 4
+
+//used in bbs.c
+#define MAX_l 256 //maximum length of random bits NEED: NOT SAFE CURRENTLY
 
 //PACKET IDENTIFIERS
 #define EST1 0

@@ -126,7 +126,7 @@ static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
     
     /* Setup AES and strip ciphertext of its tag */
     if ( ! encrypting ) {
-         if (inbytes < TAGBYTES) return -1;
+         if (inbytes < TAGBYTES) return 0;
          inbytes -= TAGBYTES;  				//kaas: de #messagebytes = #ciphertextbytes - #tagbytes
          AES_set_decrypt_key(k, KEYBYTES*8, &aes_decrypt_key);
     }
@@ -235,9 +235,9 @@ static int ocb_crypt(unsigned char *out, unsigned char *k, unsigned char *n,
     
     if (encrypting) {
         memcpy(out, tag, TAGBYTES);
-        return 0;
+        return 1;
     } else
-        return (memcmp(in,tag,TAGBYTES) ? -1 : 0);     /* Check for validity */
+        return (memcmp(in,tag,TAGBYTES) ? 0 : 1);     /* Check for validity */
 }
 
 /* ------------------------------------------------------------------------- */

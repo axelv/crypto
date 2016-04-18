@@ -1,7 +1,15 @@
+#include <string.h>
 #include "crypto_wrapper.h"
 #define BUFFERSIZE 30
 
 int main(){
+	
+	if(initialize_connection()==0){
+		
+	//return -1;//The last fase of STS does'nt work.
+	
+	}
+	
 	/***************************************/
 	/*            CRYPTOSHIZLE             */
 	/***************************************/
@@ -11,11 +19,13 @@ int main(){
 	uint8_t data_in[MAX_DATA_LENGTH];
 	uint8_t data_out[MAX_DATA_LENGTH];
 	memcpy(data_in, buffer, BUFFERSIZE);
-	 
+	printf("\nStart sending data. \n");
 	encrypt_data(packet, data_in, BUFFERSIZE);
 	decrypt_data(data_out, packet);
 	if(memcmp(data_in, data_out,BUFFERSIZE)==0){
 		printf("Received data is correct! \n");
 		memcpy(buffer, data_out, BUFFERSIZE);	  	
 	}
+	
+	finalize_connection();
 }
