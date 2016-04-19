@@ -81,6 +81,9 @@ int main (int argc, char *argv[])
   struct encChunk rightEncChunk; initEncChunk(&rightEncChunk);
   struct decChunk leftDecChunk;  initDecChunk(&leftDecChunk);
   struct decChunk rightDecChunk; initDecChunk(&rightDecChunk);
+  
+  /* CRYPTO: initialize connection */
+  if(initialize_connection()==0)return -1;
 
   /*bufPos expressed in temporal samples*/
   for (bufPos=0; bufPos<input.samplesAvailable; bufPos+=(BUFFERSIZE/2)){

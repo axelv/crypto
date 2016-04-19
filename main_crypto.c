@@ -4,12 +4,8 @@
 
 int main(){
 	
-	if(initialize_connection()==0){
+	if(initialize_connection()==0)return -1;
 		
-	//return -1;//The last fase of STS does'nt work.
-	
-	}
-	
 	/***************************************/
 	/*            CRYPTOSHIZLE             */
 	/***************************************/

@@ -95,9 +95,8 @@ uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES])
 	montgomery_exponentiation(K, gy, x, XYSIZE, p, rmodn_dh, r2modn_dh);
 	
 	//OCB-AES decrypt
-	
-	//ocb_decrypt(signed_msg, K, nonce, NULL, 0, message+PSIZE, CIPHSIZE);
-	memcpy(signed_msg, message+PSIZE, SIGNSIZE);
+	ocb_decrypt(signed_msg, K, nonce, NULL, 0, message+PSIZE, CIPHSIZE);
+	//memcpy(signed_msg, message+PSIZE, SIGNSIZE);
 	
 	//RSA VERIFY
 	if(RSASSA_PKCS1V1_5_VERIFY(gyx, 2*PSIZE, signed_msg, public_key, PUB_KEY, n, rmodn_slave, r2modn_slave)){
@@ -109,10 +108,9 @@ uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES])
 }
 /* ------------------------------------------------------------------------- */
 /* Send an encrypted and signed message to the slave */
-void reply_slave(uint8_t message[SIGNSIZE], uint8_t seqnr[SEQBYTES]){
+void reply_slave(uint8_t message[CIPHSIZE], uint8_t seqnr[SEQBYTES]){
 	uint8_t signed_msg[SIGNSIZE];
 	uint8_t private_key[PRIV_KEY];
-	uint8_t public_key[PUB_KEY];
 	uint8_t p[PSIZE];
 	uint8_t n[NSIZE];
 	uint8_t nonce[HASHSIZE];
@@ -125,28 +123,12 @@ void reply_slave(uint8_t message[SIGNSIZE], uint8_t seqnr[SEQBYTES]){
 	get_prime(p);
 	
 	//private key
-	get_master_privkey(private_key);	
-	
-	/*printf("\nrMODn: \n"); int i;
-	for(i=0;i<NSIZE;i++)printf("%02x",rmodn_master[i]);
-	printf("\n");
-	printf("\nr2RMODn: \n");
-	for(i=0;i<NSIZE;i++)printf("%02x",r2modn_master[i]);
-	printf("\n");
-	printf("\nPUB_KEY: \n");
-	for(i=0;i<PUB_KEY;i++)printf("%02x",public_key[i]);
-	printf("\n");
-	printf("\nPRIV_KEY: \n");
-	for(i=0;i<PRIV_KEY;i++)printf("%02x",private_key[i]);
-	printf("\n");
-	printf("\nModulus: \n");
-	for(i=0;i<NSIZE;i++)printf("%02x",n[i]);
-	printf("\n");*/
+	get_master_privkey(private_key);
 	
 	//RSA SIGNING
 	RSASSA_PKCS1_V1_5_SIGN(signed_msg, private_key, PRIV_KEY, n, rmodn_master, r2modn_master, gxy, 2*PSIZE);
 	//OCB-AES encrypt
-	//ocb_encrypt(message, K, nonce, NULL, 0, signed_msg, SIGNSIZE);
+	ocb_encrypt(message, K, nonce, NULL, 0, signed_msg, SIGNSIZE);
 }
 
 

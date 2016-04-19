@@ -16,7 +16,7 @@
 #define PUB_KEY 3
 #define NSIZE 157
 #define SIGNSIZE 156 //NEED: waarom is dit anders?
-#define CIPHSIZE 160
+#define CIPHSIZE SIGNSIZE+TAGBYTES
 #define HASHSIZE 256/8 /*size of the signed message*/
 
 //DH

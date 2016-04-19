@@ -4,10 +4,10 @@ CFLAGS=-Wall -ansi -pedantic-errors -g -O0 -std=c99
 
 rebuild: clean all
 
-all: crypto
+all: integration
  
 clean: 
-	$(RM) $^ integration main.o SBC/wavpcm_io.o SBC/encoder.o SBC/decoder.ocrypto _wrapper.o packman/packman_master.o packman/packman_slave.o  ciphers/sha2/sha2_wrapper.o ciphers/sha2/sha2.o ocb/ocb.o ocb/aes.o tools/tools.o
+	$(RM) $^ integration main.o SBC/wavpcm_io.o SBC/encoder.o SBC/decoder.o crypto_wrapper.o sts/sts_master.o sts/sts_slave.o sts/sts.o packman/packman_master.o packman/packman_slave.o asymmetric/monexp.o asymmetric/monmult.o asymmetric/signatures.o ciphers/sha2/sha2_wrapper.o ciphers/sha2/sha2.o ocb/ocb.o ocb/aes.o tools/tools.o bbs/bbs.o
 	
 clean_crypto:
 	$(RM) $^ crypto main_crypto.o crypto_wrapper.o sts/sts_master.o sts/sts_slave.o sts/sts.o packman/packman_master.o packman/packman_slave.o asymmetric/monexp.o asymmetric/monmult.o asymmetric/signatures.o ciphers/sha2/sha2_wrapper.o ciphers/sha2/sha2.o ocb/ocb.o ocb/aes.o tools/tools.o bbs/bbs.o
@@ -15,7 +15,7 @@ clean_crypto:
 crypto: main_crypto.o crypto_wrapper.o sts/sts_master.o sts/sts_slave.o sts/sts.o packman/packman_master.o packman/packman_slave.o asymmetric/monexp.o asymmetric/monmult.o asymmetric/signatures.o ciphers/sha2/sha2_wrapper.o ciphers/sha2/sha2.o ocb/ocb.o ocb/aes.o tools/tools.o bbs/bbs.o
 	$(LINK.o) $^ -o $@
 	
-integration: main.o SBC/wavpcm_io.o SBC/encoder.o SBC/decoder.o crypto_wrapper.o packman/packman_master.o packman/packman_slave.o ciphers/sha2/sha2_wrapper.o ciphers/sha2/sha2.o ocb/ocb.o ocb/aes.o tools/tools.o
+integration: main.o SBC/wavpcm_io.o SBC/encoder.o SBC/decoder.o crypto_wrapper.o sts/sts_master.o sts/sts_slave.o sts/sts.o packman/packman_master.o packman/packman_slave.o asymmetric/monexp.o asymmetric/monmult.o asymmetric/signatures.o ciphers/sha2/sha2_wrapper.o ciphers/sha2/sha2.o ocb/ocb.o ocb/aes.o tools/tools.o bbs/bbs.o
 	$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@
 	
 SBC: SBC/main.o SBC/wavpcm_io.o SBC/encoder.o SBC/decoder.o
