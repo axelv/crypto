@@ -1,3 +1,4 @@
+#include <stdint.h>
 //RSA-private key 
 const static unsigned char master_private_exponent[156] =
 	"\x3c\x13\xf0\x04\xd1\x24\xdd\x01\x03\xd2\xb0\x71\x42\xa2\xf6"

@@ -1,5 +1,6 @@
 #include "crypto_wrapper.h"
 #include "tools/tools.h"
+#define PRINT 0
 
 static int valid_packets;
 static int invalid_packets;
@@ -8,10 +9,11 @@ int initialize_connection(){
 	uint8_t packet[MAX_PACK_LENGTH];
 	uint8_t data[MAX_DATA_LENGTH];
 	
+#ifdef PRINT
 	printf("\n------------------------------------------\n");
 	printf("| Alice is the master | Bob is the slave |\n");
 	printf("------------------------------------------\n");
-	
+#endif
 	
 	// Alice -> Bob: g^x
 	m_create_packet(packet, NULL, EST1, 0);
@@ -21,33 +23,45 @@ int initialize_connection(){
 	// 1. Bob validates g^x
 	// 2. Bob -> Alice: g^y,Ek(S(g^y,g^x);
 	if(s_validate_packet(data, packet)){
-		printf("EST1 packet from Bob is valid! \n");
 		s_create_packet(packet, data, EST2, 0);
+#ifdef PRINT
+		printf("EST1 packet from Bob is valid! \n");
 		printf("Bob sended EST2 packet. \n");
+#endif
 	}else{
+#ifdef PRINT
 		printf("EST1 packet from Bob is not valid. \nEST1 packet: \n");
 		print_packet(packet, EST1);
+#endif
 		return 0;
 	}	
 	// 1. Alice validates g^y and Bob's signature
 	// 2. Alice -> Bob: Ek(S(g^x,g^y);
 	if(m_validate_packet(data,packet)){
-		printf("EST2 packet and signature from Alice are valid. \n");
 		m_create_packet(packet, NULL, EST3, 0);
+#ifdef PRINT
+		printf("EST2 packet and signature from Alice are valid. \n");
 		printf("Alice sended EST3 packet. \n");
+#endif
 	}else{
+#ifdef PRINT
 		printf("EST2 packet and/or signature from Alice are not valid. \nEST2 packet: \n");
 		print_packet(packet, EST2);
+#endif
 		return 0;
 	}
 	
 	// Bob validates Alice's signature
 	if(s_validate_packet(data,packet)){
+#ifdef PRINT
 		printf("EST3 packet from Bob is valid.\n");
+#endif
 		return 1;
 	}else{
+#ifdef PRINT
 		printf("EST3 packet from Bob is not valid. \nEST3 packet:  \n");
 		print_packet(packet, EST3);
+#endif
 		return 0;
 	}
 }
@@ -68,8 +82,10 @@ int decrypt_data(uint8_t output[MAX_DATA_LENGTH], uint8_t *input){
 	}
 }
 void finalize_connection(){
+#ifdef PRINT
 	printf("\n----------------");
 	printf("\nCRYPTO RESULTS: \n");
 	printf("Number of valid packets: %d \n", valid_packets);
-	printf("Number of invalid packets: %d \n", invalid_packets);	
+	printf("Number of invalid packets: %d \n", invalid_packets);
+#endif
 }

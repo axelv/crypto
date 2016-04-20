@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "sha2_wrapper.h"
+#include "../ciphers/sha2/sha2_wrapper.h"
 #include <string.h> // for memcpy and memcmp
 #include "monexp.h"
 #include "monmult.h"
