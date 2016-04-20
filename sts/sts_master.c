@@ -72,9 +72,7 @@ void init_connection(uint8_t message[PSIZE]){
 /* Validate the message received from the slave */
 uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES]){
 	uint8_t signed_msg[SIGNSIZE];
-	uint8_t public_key[PUB_KEY];
 	uint8_t p[PSIZE];
-	uint8_t n[NSIZE];
 	uint8_t nonce[HASHSIZE];
 	
 	//generate nonce
@@ -85,11 +83,7 @@ uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES])
 	memcpy(gyx+2*PSIZE, message, PSIZE);
 	
 	//modulus p & n
-	get_slave_modulus(n);
 	get_prime(p);
-	
-	//public_key
-	get_slave_pubkey(public_key);
 	
 	//calcuate the shared key
 	montgomery_exponentiation(K, gy, x, XYSIZE, p, rmodn_dh, r2modn_dh);
@@ -99,7 +93,7 @@ uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES])
 	//memcpy(signed_msg, message+PSIZE, SIGNSIZE);
 	
 	//RSA VERIFY
-	if(RSASSA_PKCS1V1_5_VERIFY(gyx, 2*PSIZE, signed_msg, public_key, PUB_KEY, n, rmodn_slave, r2modn_slave)){
+	if(RSASSA_PKCS1V1_5_VERIFY(gyx, 2*PSIZE, signed_msg, slave_public_exponent, PUB_KEY, slave_modulus, rmodn_slave, r2modn_slave)){
 		return 1;
 	}else{
 		return 0;
@@ -110,23 +104,17 @@ uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES])
 /* Send an encrypted and signed message to the slave */
 void reply_slave(uint8_t message[CIPHSIZE], uint8_t seqnr[SEQBYTES]){
 	uint8_t signed_msg[SIGNSIZE];
-	uint8_t private_key[PRIV_KEY];
 	uint8_t p[PSIZE];
-	uint8_t n[NSIZE];
 	uint8_t nonce[HASHSIZE];
 	
 	//generate nonce
 	compute_SHA256(nonce, seqnr, SEQBYTES);
 	
 	//modulus
-	get_master_modulus(n);
 	get_prime(p);
-	
-	//private key
-	get_master_privkey(private_key);
-	
+
 	//RSA SIGNING
-	RSASSA_PKCS1_V1_5_SIGN(signed_msg, private_key, PRIV_KEY, n, rmodn_master, r2modn_master, gxy, 2*PSIZE);
+	RSASSA_PKCS1_V1_5_SIGN(signed_msg, master_private_exponent, PRIV_KEY, master_modulus, rmodn_master, r2modn_master, gxy, 2*PSIZE);
 	//OCB-AES encrypt
 	ocb_encrypt(message, K, nonce, NULL, 0, signed_msg, SIGNSIZE);
 }

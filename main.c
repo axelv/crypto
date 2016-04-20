@@ -1,7 +1,6 @@
 #include <string.h>
 #include "crypto_wrapper.h"
 #define BUFFERSIZE 30
-#define PRINT 0
 
 int main(){
 	

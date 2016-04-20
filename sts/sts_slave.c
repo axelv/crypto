@@ -48,9 +48,7 @@ static uint8_t *gy = (uint8_t *)(gxy+PSIZE);
 /* Send an encrypted and signed message to the slave */
 void reply_master(uint8_t message[PSIZE+CIPHSIZE], uint8_t received_msg[PSIZE], uint8_t seqnr[SEQBYTES]){
 	uint8_t signed_msg[SIGNSIZE];
-	uint8_t private_key[PRIV_KEY];
 	uint8_t p[PSIZE];
-	uint8_t n[NSIZE];
 	uint8_t g[GSIZE];
 	uint8_t nonce[HASHSIZE];
 
@@ -62,11 +60,7 @@ void reply_master(uint8_t message[PSIZE+CIPHSIZE], uint8_t received_msg[PSIZE], 
 	memcpy(gx+2*PSIZE, received_msg, PSIZE);	
 	
 	///modulus
-	get_slave_modulus(n);
 	get_prime(p);
-	
-	//private key
-	get_slave_privkey(private_key); 
 	
 	//generator
 	get_generator(g);
@@ -78,7 +72,7 @@ void reply_master(uint8_t message[PSIZE+CIPHSIZE], uint8_t received_msg[PSIZE], 
 	memcpy(message,gy,PSIZE);//TODO: gewoon adres toekennen aan message?
 	
 	//RSA SIGNING
-	RSASSA_PKCS1_V1_5_SIGN(signed_msg, private_key, PRIV_KEY, n, rmodn_slave, r2modn_slave, gyx, 2*PSIZE);
+	RSASSA_PKCS1_V1_5_SIGN(signed_msg, slave_private_exponent, PRIV_KEY, slave_modulus, rmodn_slave, r2modn_slave, gyx, 2*PSIZE);
 	
 	
 	//calcuate the shared key
@@ -92,17 +86,11 @@ void reply_master(uint8_t message[PSIZE+CIPHSIZE], uint8_t received_msg[PSIZE], 
 /* Validate the message received from the master */
 uint8_t validate_master(uint8_t message[SIGNSIZE], uint8_t seqnr[SEQBYTES]){
 	uint8_t signed_msg[SIGNSIZE];
-	uint8_t public_key[PUB_KEY];
 	uint8_t p[PSIZE];
-	uint8_t n[NSIZE];
 	uint8_t nonce[HASHSIZE];
 	
 	//modulus
-	get_master_modulus(n);
 	get_prime(p);
-	
-	//public key
-	get_master_pubkey(public_key);
 	
 	//calcuate the shared key
 	montgomery_exponentiation(K, gx, y, XYSIZE, p, rmodn_dh, r2modn_dh);
@@ -114,7 +102,7 @@ uint8_t validate_master(uint8_t message[SIGNSIZE], uint8_t seqnr[SEQBYTES]){
 	ocb_decrypt(signed_msg, K, nonce, NULL, 0, message, CIPHSIZE);
 	
 	//RSA VERIFY
-	if(RSASSA_PKCS1V1_5_VERIFY(gxy, 2*PSIZE, signed_msg, public_key, PUB_KEY, n, rmodn_master, r2modn_master)){
+	if(RSASSA_PKCS1V1_5_VERIFY(gxy, 2*PSIZE, signed_msg, master_public_exponent, PUB_KEY, master_modulus, rmodn_master, r2modn_master)){
 		return 1;
 	}else{
 		return 0;
