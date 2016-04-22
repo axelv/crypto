@@ -1,3 +1,6 @@
+//PRINT
+#define PRINT 0
+
 //HEADER
 #define IDBYTES    1
 #define LENBYTES   1
