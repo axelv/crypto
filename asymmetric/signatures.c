@@ -17,8 +17,9 @@
 #include "monexp.h"
 #include "monmult.h"
 #include "signatures.h"
+#include "../constants.h"
 
-#define SIGNATURE_DEBUG 1 // enable debug statements for this module
+#define PRINT 1 // enable debug statements for this module
 
 /* From RFC 3447, Public-Key Cryptography Standards (PKCS) #1: RSA
  * Cryptography Specifications Version 2.1.
@@ -51,7 +52,7 @@ to the message M to produce an encoded message EM of length k octets
 	uint8_t hashedM[SHA256_DIGEST_LENGTH];
     compute_SHA256(hashedM,M,M_length);
 	
-	#if SIGNATURE_DEBUG
+	#if PRINT
 	printf("\n[EMSA] Output of SHA256:\n0x");
 	for(i=0;i<SHA256_DIGEST_LENGTH;i++){
 		printf("%02x",hashedM[i]);
@@ -82,7 +83,7 @@ to the message M to produce an encoded message EM of length k octets
 	
 // Output EM, should be of length n
 // Operations were performed on EM, nothing has to be returned here.
-	#if SIGNATURE_DEBUG
+	#if PRINT
 	printf("\n[EMSA]_PKCS1_V1.5_ENCODING OUTPUT (%d bytes):\n", emLen);
 	for(i=0;i<emLen;i++){
 		printf("%02x",EM[i]);
@@ -120,7 +121,7 @@ void RSASSA_PKCS1_V1_5_SIGN(uint8_t *S,uint8_t *privkey,unsigned int privkey_len
 	montgomery_exponentiation(S,encoded_msg_LE,privkey,privkey_length,modulus,rmodn, r2modn);
 
 // Step 3: output S
-	#if SIGNATURE_DEBUG
+	#if PRINT
 	printf("\n[RSASSA]_PKCS1_V1_5_SIGN\n");
 	for(i=0;i<SIZE;i++){
 		printf("%02x",S[i]);
@@ -149,7 +150,7 @@ uint8_t RSASSA_PKCS1V1_5_VERIFY(uint8_t *M, unsigned int M_length, uint8_t *S,ui
 	unsigned int i;
 // Step 1: Verify signature using rsa_pubkey
 	montgomery_exponentiation(msg_to_be_compared_to_encoded,S,pubkey,pubkey_length,modulus,rmodn,r2modn);
-	#if SIGNATURE_DEBUG
+	#if PRINT
 	printf("\n[RSASSA]_PKCS1_V1_5_VERIFY: msg_to_be_compared_to_encoded\n");
 	for(i=0;i<SIZE;i++){
 		printf("%02x",msg_to_be_compared_to_encoded[i]);
@@ -167,7 +168,7 @@ uint8_t RSASSA_PKCS1V1_5_VERIFY(uint8_t *M, unsigned int M_length, uint8_t *S,ui
 	}
 // Step 3: if EM' == EM: Signature VALID
 	int Signature_Valid = !memcmp(encoded_msg_LE,msg_to_be_compared_to_encoded,SIZE); // 0 if equal
-	#if SIGNATURE_DEBUG
+	#if PRINT
 	if(Signature_Valid){
 		printf("\n[RSASSA]_PKCS1_V1_5_VERIFY : SIGNATURE IS VALID\n");
 	}else{

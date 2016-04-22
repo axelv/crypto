@@ -1,5 +1,6 @@
 #include <string.h>
 #include "crypto_wrapper.h"
+#include "constants.h"
 #define BUFFERSIZE 30
 
 int main(){
