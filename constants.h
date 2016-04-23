@@ -1,5 +1,5 @@
 //PRINT
-#define PRINT 0
+#define PRINT 1
 
 //HEADER
 #define IDBYTES    1

@@ -52,9 +52,6 @@ void s_create_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t typ
 		memcpy(packet, &type, IDBYTES);
 		create_data_packet(packet, data, length);
 	}
-	if(type == EOT){
-		
-	}
 	s_seq = s_seq + 1;
 }
 
@@ -78,7 +75,11 @@ uint8_t s_validate_packet(uint8_t *data, uint8_t *packet){
 			is_valid = validate_data_packet(data, packet);	
 		}
 		if(type == EOT){
-			
+#if PRINT
+			printf("\nEnd of Transmission \n");
+#endif
+			memset(K,0, KEYBYTES);
+			memset(data, 0, MAX_DATA_LENGTH);
 		}
 		//s_seq = (uint32_t )packet[IDBYTES]+ 1; TODO
 		s_seq = s_seq + 1;

@@ -80,8 +80,10 @@ int decrypt_data(uint8_t output[MAX_DATA_LENGTH], uint8_t *input){
 		return 0;
 	}
 }
-void finalize_connection(){
-m_create_packet(packet, NULL, EOT, 0);
+void finalize_connection(uint8_t output[MAX_DATA_LENGTH]){
+	uint8_t packet[MAX_PACK_LENGTH];
+	m_create_packet(packet, NULL, EOT, 0);
+	s_validate_packet(output, packet);
 #ifdef PRINT
 	printf("\n----------------");
 	printf("\nCRYPTO RESULTS: \n");

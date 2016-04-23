@@ -27,6 +27,5 @@ int main(){
 #endif
 		memcpy(buffer, data_out, BUFFERSIZE);	  	
 	}
-	
-	finalize_connection();
+	finalize_connection(data_out);
 }

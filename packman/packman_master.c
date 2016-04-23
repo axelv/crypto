@@ -59,7 +59,10 @@ void m_create_packet(uint8_t packet[MAX_PACK_LENGTH], uint8_t *data, uint8_t typ
 		create_data_packet(packet, data, length);
 	}
 	if(type == EOT){
-		
+		memcpy(packet, &type, IDBYTES);
+		memcpy(packet+IDBYTES, &m_seq, SEQBYTES);
+		memcpy(packet+IDBYTES+SEQBYTES, &length, LENBYTES);
+		memset(K,0, KEYBYTES);
 	}
 	m_seq = m_seq + 1;
 }
@@ -76,9 +79,6 @@ uint8_t m_validate_packet(uint8_t *data, uint8_t *packet){
 		}
 		if(type == DATA){
 			is_valid = validate_data_packet(data, packet);	
-		}
-		if(type == EOT){
-			
 		}
 		//m_seq = (uint32_t )packet[IDBYTES]+ 1; TODO
 		m_seq = m_seq + 1;
