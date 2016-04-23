@@ -70,12 +70,6 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		unsigned int k;
 		unsigned int j;
 
-		// temporary sum used in former ADD function
-		unsigned short temp_sum = 0;
-
-		// variables used in former mp_substraction function
-		unsigned short s1;
-		unsigned short s2;
 		signed short r = 0;
 		signed short c = 0;
 
@@ -267,37 +261,6 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		}
 		// if subtraction was needed, it is already done here. Start copying answer to res
 	
-	
-		/*k=0;
-		// TODO for met break ipv while?
-		while(m[SIZE-1-k] == n[SIZE-1-k]) //Search for the first two words that are different, starting from MSB
-		{ 
-			k++;
-		}
-		
-		if(m[SIZE-1-k] >= n[SIZE-1-k])
-		{
-			printf("\n ENTERING MP_SUB\n");
-			// mp_substraction(m,m,n)
-			for(j=0; j<SIZE; j++)
-			{
-				s1 = (short) m[j];
-				s2 = (short) n[j];
-				r = s1 - s2 - c;
-				if(r < 0)
-				{ 
-					c = 1;
-					r = r + (SIZE + SIZE); // r mod(2*SIZE) (always: |r|<2*SIZE)
-				}
-				else
-				{
-					c = 0;		
-				}
-				m[j] = (unsigned char) r&0xff;
-			}
-			m[j] = (unsigned char) (SIZE-c); // modulo NEED kaas wat is dit? en klopt het zoals ik het nu doe? 
-		}
-*/
 	for(k=0; k<SIZE; k++)
 	{
 		res[k]=m[k];	
