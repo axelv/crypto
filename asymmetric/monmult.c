@@ -86,7 +86,6 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		// variables used in former mp_substraction function
 		unsigned short s1;
 		unsigned short s2;
-
 		signed short r = 0;
 		signed short c = 0;
 
