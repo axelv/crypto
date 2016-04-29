@@ -47,6 +47,9 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,ui
 	uint8_t A[SIZE];
 	uint8_t one[SIZE] = {0x01,0,};
 	uint8_t bln_exp_start = 0;
+	
+	setup_monmult(n); // Setting up the montgomery multiplication
+	
 	// 1
 	montgomery_multiplication(xtilde, base, r2modn,n);
 	for(i=0;i<SIZE;i++){ // Copy rmodn into A

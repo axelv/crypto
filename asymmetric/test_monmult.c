@@ -31,6 +31,7 @@ uint8_t result_mon_mul[SIZE];
 int main() 
 {
 	signed int i;
+	setup_monmult(n);
 	montgomery_multiplication(result_mon_mul,a,b,n);
 	printf("\nResult of monmult is:\n");
 	for(i=0; i<SIZE; i++)

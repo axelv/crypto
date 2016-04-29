@@ -16,7 +16,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "monmult.h"
-unsigned char i;
+
+uint8_t nprime_0 = 0; // To store the nprime_0 state across monmult calls. mod_inverse should only be called when a new modulus is defined.
+
 
 // Computes x**-1 mod b for x odd and b being 2**(8)
 // x begin ODD is REQUIRED and assumed in this function.
@@ -26,7 +28,7 @@ uint8_t mod_inverse(uint8_t x)
 {
 	uint8_t y[MWORDSIZE+1] = {0,1,};
 	uint16_t bitmask = 0;
-	
+	unsigned char i;
 	for(i=2;i<MWORDSIZE+1;i++){
 		bitmask = 0xFFFF;      //1111111111111111
 		bitmask = bitmask << i;//1111111111111100
@@ -43,6 +45,13 @@ uint8_t mod_inverse(uint8_t x)
 	
 	return y[MWORDSIZE];
 }
+
+void setup_monmult(uint8_t *n){
+	uint8_t min_n0 = (-n[0]) & 0xFF;
+	//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
+	nprime_0 = mod_inverse(min_n0);
+}
+
 void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t *n)
 {
 		signed int it;
@@ -69,7 +78,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		// loop variables
 		unsigned int k;
 		unsigned int j;
-
+		unsigned char i;
 		// temporary sum used in former ADD function
 		unsigned short temp_sum = 0;
 
@@ -91,9 +100,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		// carry C
 		uint8_t C = 0;
 
-		uint8_t min_n0 = (-n[0]) & 0xFF;
+		//uint8_t min_n0 = (-n[0]) & 0xFF;
 		//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
-		uint8_t nprime_0 = mod_inverse(min_n0);
+		//uint8_t nprime_0 = mod_inverse(min_n0);
 		#if MONT_DEBUG
 		fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 		#endif
