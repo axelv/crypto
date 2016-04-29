@@ -68,6 +68,7 @@ void reply_master(uint8_t message[PSIZE+CIPHSIZE], uint8_t received_msg[PSIZE], 
 	//First part of message: g^y
 	//TODO: seed has to come from random inputs
 	generate_number(y, XYSIZE, 9);
+	setup_monmult(p);
 	montgomery_exponentiation(gy, g, y, XYSIZE, p, rmodn_dh, r2modn_dh);
 	memcpy(message,gy,PSIZE);//TODO: gewoon adres toekennen aan message?
 	
@@ -76,6 +77,7 @@ void reply_master(uint8_t message[PSIZE+CIPHSIZE], uint8_t received_msg[PSIZE], 
 	
 	
 	//calcuate the shared key
+	setup_monmult(p);
 	montgomery_exponentiation(K, gx, y, XYSIZE, p, rmodn_dh, r2modn_dh);
 	
 	//OCB-AES encrypt
@@ -93,6 +95,7 @@ uint8_t validate_master(uint8_t message[SIGNSIZE], uint8_t seqnr[SEQBYTES]){
 	get_prime(p);
 	
 	//calcuate the shared key
+	setup_monmult(p);
 	montgomery_exponentiation(K, gx, y, XYSIZE, p, rmodn_dh, r2modn_dh);
 	
 	//generate nonce

@@ -63,6 +63,7 @@ void init_connection(uint8_t message[PSIZE]){
 	
 	//TODO: seed has to come from random inputs
 	generate_number(x, XYSIZE, 8);
+	setup_monmult(p);
 	montgomery_exponentiation(gx, g, x, XYSIZE, p, rmodn_dh, r2modn_dh);
 
 	memcpy(message,gx,PSIZE); //TODO: gewoon adres toekennen aan message?
@@ -86,6 +87,7 @@ uint8_t validate_slave(uint8_t message[PSIZE+CIPHSIZE], uint8_t seqnr[SEQBYTES])
 	get_prime(p);
 	
 	//calcuate the shared key
+	setup_monmult(p);
 	montgomery_exponentiation(K, gy, x, XYSIZE, p, rmodn_dh, r2modn_dh);
 	
 	//OCB-AES decrypt
