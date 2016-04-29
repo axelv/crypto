@@ -4,8 +4,8 @@
 * DESCRIPTION :
 *       Signature Generation and Validation functions
 *
-* 
-* AUTHOR :    mraes 
+*
+* AUTHOR :    mraes
 *
 *
 *****/
@@ -47,11 +47,11 @@ void EMSA_PKCS1_V1_5_ENCODE(uint8_t *EM, uint8_t *M,unsigned int M_length, unsig
 to the message M to produce an encoded message EM of length k octets
 */
 	unsigned int i;
-	
+
 //Step 1: Apply the hash function to the message M.
 	uint8_t hashedM[SHA256_DIGEST_LENGTH];
     compute_SHA256(hashedM,M,M_length);
-	
+
 	#if PRINT
 	printf("\n[EMSA] Output of SHA256:\n0x");
 	for(i=0;i<SHA256_DIGEST_LENGTH;i++){
@@ -64,23 +64,23 @@ to the message M to produce an encoded message EM of length k octets
 	}
 	printf("\n");
 	#endif
-	
+
 	memcpy(EM+emLen-SHA256_DIGEST_LENGTH,hashedM,SHA256_DIGEST_LENGTH);
-	
+
 // Step 2: Put the prefix in front, total is T with length tLen
 	unsigned int tLen = sha256_prefix_size + SHA256_DIGEST_LENGTH; // should be 51
 	memcpy(EM+emLen-tLen,sha256_prefix,sha256_prefix_size);
-	
+
 // Step 3: Generate octet string PS consisting of emLen - tLen -3 octets 0xff.
 	for(i=0;i<emLen-tLen-3;i++){
 		EM[2+i] = 0xFF; // 2+i because the first two bytes HAVE TO BE 0x00 and 0x01 as per specifications
 	}
 	EM[2+emLen-tLen-3] = 0x00;
-	
+
 // Step 4: Concatenate EM = 0x00 / 0x01 / PS / 0x00 / T
 	EM[0] = 0x00;
 	EM[1] = 0x01;
-	
+
 // Output EM, should be of length n
 // Operations were performed on EM, nothing has to be returned here.
 	#if PRINT
@@ -111,12 +111,11 @@ void RSASSA_PKCS1_V1_5_SIGN(uint8_t *S,uint8_t *privkey,unsigned int privkey_len
 // Step 1: EM = EMSA-PKCS1-V1_5-ENCODE (M, k)
 	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,SIZE);
 // Step 2: S = Sign EM using rsa_privkey
-	
+
 	// Let's try and change the encoded msg endianness
 	uint8_t encoded_msg_LE[SIZE];
 	for(i=0;i<SIZE;i++){
 		encoded_msg_LE[i] = encoded_msg[SIZE-1-i];
-		
 	}
 	montgomery_exponentiation(S,encoded_msg_LE,privkey,privkey_length,modulus,rmodn, r2modn);
 
@@ -164,7 +163,6 @@ uint8_t RSASSA_PKCS1V1_5_VERIFY(uint8_t *M, unsigned int M_length, uint8_t *S,ui
 	uint8_t encoded_msg_LE[SIZE];
 	for(i=0;i<SIZE;i++){
 		encoded_msg_LE[i] = encoded_msg[SIZE-1-i];
-		
 	}
 // Step 3: if EM' == EM: Signature VALID
 	int Signature_Valid = !memcmp(encoded_msg_LE,msg_to_be_compared_to_encoded,SIZE); // 0 if equal

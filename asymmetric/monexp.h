@@ -1,14 +1,14 @@
 /***********************************************************************
-* FILENAME :        monexp.h   
+* FILENAME :        monexp.h
 *
 * DESCRIPTION :
 *       Header file of monexp.c, exposing the function and defining
 *	some constants.
 *
 *
-* NOTES : 
-* 
-* AUTHOR :    mraes     
+* NOTES :
+*
+* AUTHOR :    mraes
 *
 *
 *****/

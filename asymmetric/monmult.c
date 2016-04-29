@@ -1,5 +1,5 @@
 /***********************************************************************
-* FILENAME :        monmult.c     
+* FILENAME :        monmult.c
 *
 * DESCRIPTION :
 *       Performs Montgomery Multiplication of 2 multiple precision integers.
@@ -8,8 +8,8 @@
 *       int     monmult(  )
 *
 * NOTES : Using the Finely Integrated Product Scanning (FIPS) algorithm.
-* 
-* AUTHOR :    mraes   
+*
+* AUTHOR :    mraes
 *
 *
 *****/
@@ -34,15 +34,13 @@ uint8_t mod_inverse(uint8_t x)
 		bitmask = bitmask << i;//1111111111111100
 		bitmask = ~bitmask;    //0000000000000011 to select the last 2 bits, which is the same as doing modulo 2**2
 		//fprintf(stdout,"Bitmask is 0x%02X\n", bitmask);
-			if((x*y[i-1] & bitmask) < (0x0001) << (i-1) ){ 
-				
+			if((x*y[i-1] & bitmask) < (0x0001) << (i-1) ){
 				y[i] = y[i-1];
 			}else{
 				y[i] = y[i-1] + ((0x01) << (i-1));
 			}
 		//fprintf(stdout,"\n[MODINV]y[%0d] is %0d\n", i, y[i]);
 	}
-	
 	return y[MWORDSIZE];
 }
 
@@ -56,7 +54,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 {
 		signed int it;
 		#if MONT_DEBUG
-		
+
 		printf("\n[MULT]\n in1:\n");
 		for(it=SIZE-1; it>=0; it--)
 		{
@@ -74,7 +72,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		}
 		#endif
 	// STEP 1: t = a.b & STEP 2 integrated
-	
+
 		// loop variables
 		unsigned int k;
 		unsigned int j;
@@ -215,7 +213,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 					S = S_short & 0xff; // TODO moet hier cast (char)?
 
 				t[0] = S;
-				
+
 				// add carry C to t[1] and propagate carry if needed
 					// carry is second char of short
 					t[2] += (t[1] + C) >> 8;
@@ -247,12 +245,10 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 					c = -1;
 				}
 				m[it] = r;
-			
+
 			}
-			
-			
-					
-			
+
+
 		}else{
 			for(it=SIZE-1; it>=0;it--){
 				if(m[it]>n[it]){
@@ -269,7 +265,7 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 							c = -1;
 						}
 						m[it] = r;
-					
+
 					}
 					break;
 				}else if(m[it]<n[it]){
@@ -279,10 +275,9 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 					// the two compared bytes are equal, go to the next byte to keep comparing
 				}
 			}
-		
+
 		}
 		// if subtraction was needed, it is already done here. Start copying answer to res
-	
 	for(k=0; k<SIZE; k++)
 	{
 		res[k]=m[k];	

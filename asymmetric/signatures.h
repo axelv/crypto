@@ -5,8 +5,8 @@
 *       Header file for signatures.c
 *
 *		Exposes Signing and Verification methods.
-* 
-* AUTHOR :    mraes 
+*
+* AUTHOR :    mraes
 *
 *
 *****/

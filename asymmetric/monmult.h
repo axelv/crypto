@@ -1,13 +1,13 @@
 /***********************************************************************
-* FILENAME :        monmult.h     
+* FILENAME :        monmult.h
 *
 * DESCRIPTION :
 *       Header file of monmult.c, exposing the function and defining
 *	some constants.
 *
 *
-* NOTES : 
-* 
+* NOTES :
+*
 * AUTHOR :    mraes
 *
 *
