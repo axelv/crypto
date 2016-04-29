@@ -108,8 +108,11 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		#if MONT_DEBUG
 		fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 		#endif
+#pragma MUST_ITERATE(SIZE,SIZE,1)
 		for(k=0; k<SIZE; k++)
 		{
+#pragma MUST_ITERATE(0,SIZE,1)
+#pragma UNROLL(4)
 			for(j=0; j<k; j++) //deze loop wordt bij de eerste iteratie van i niet uitgevoerd
 			{
 				// (C,S) = t[0] + a[j]*b[i-j]
@@ -184,11 +187,14 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		}
 
 	// STEP 2 finishing touch
-
+#pragma MUST_ITERATE(2*SIZE,2*SIZE,1)
 		for(k=SIZE; k<2*SIZE; k++) // NEED warning: comparison is always true due to limited range of data type. warning is er niet meer omdat i nu short is ipv char
 		{
+#pragma MUST_ITERATE(0,SIZE,1)
+#pragma UNROLL(4)
 			for(j=k-SIZE+1; j<SIZE; j++)
 			{
+
 				// (C,S) = t[0] + a[j]*b[i-j]
 					// multiplication of two chars results in short
 					S_short = t[0] + in1[j]*in2[k-j];
