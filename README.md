@@ -5,7 +5,7 @@ Repository for P&D: Crypto Team 1.
 #TODO:
 **FUNCTIONALITY**
 
-- REPLACE BBS WITH **AES-CTR**!!!
+- REPLACE BBS WITH **ISAAC**!!! (http://burtleburtle.net/bob/rand/isaacafa.html)
 - AV: Add check for g^y = 1 or 0 or modulus-1 to **STS**
 - AV: Add case for EOT that redirects the slave/master to initlialisation
 - AV: Add solution for the sequence counter in case of packetloss
