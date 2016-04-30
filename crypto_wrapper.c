@@ -16,7 +16,7 @@ int initialize_connection(){
 	
 	// Alice -> Bob: g^x
 	m_create_packet(packet, NULL, EST1, 0);
-	printf("Alice sended EST1 packet. \n");
+	printf("Alice sent EST1 packet. \n");
 	//print_packet(packet, AUTHBYTES+PSIZE);
 	
 	// 1. Bob validates g^x
@@ -24,12 +24,12 @@ int initialize_connection(){
 	if(s_validate_packet(data, packet)){
 		s_create_packet(packet, data, EST2, 0);
 #if PRINT
-		printf("EST1 packet from Bob is valid! \n");
-		printf("Bob sended EST2 packet. \n");
+		printf("Bob: EST1 packet from Alice is valid! \n");
+		printf("Bob sent EST2 packet. \n");
 #endif
 	}else{
 #if PRINT
-		printf("EST1 packet from Bob is not valid. \nEST1 packet: \n");
+		printf("Bob: EST1 packet from Alice is not valid. \nEST1 packet: \n");
 		print_packet(packet, EST1);
 #endif
 		return 0;
@@ -39,12 +39,12 @@ int initialize_connection(){
 	if(m_validate_packet(data,packet)){
 		m_create_packet(packet, NULL, EST3, 0);
 #if PRINT
-		printf("EST2 packet and signature from Alice are valid. \n");
-		printf("Alice sended EST3 packet. \n");
+		printf("Alice: EST2 packet and signature from Bob are valid. \n");
+		printf("Alice sent EST3 packet. \n");
 #endif
 	}else{
 #if PRINT
-		printf("EST2 packet and/or signature from Alice are not valid. \nEST2 packet: \n");
+		printf("Alice: EST2 packet and/or signature from Bob are not valid. \nEST2 packet: \n");
 		print_packet(packet, EST2);
 #endif
 		return 0;
@@ -53,12 +53,12 @@ int initialize_connection(){
 	// Bob validates Alice's signature
 	if(s_validate_packet(data,packet)){
 #if PRINT
-		printf("EST3 packet from Bob is valid.\n");
+		printf("Bob: EST3 packet from Alice is valid.\n");
 #endif
 		return 1;
 	}else{
 #if PRINT
-		printf("EST3 packet from Bob is not valid. \nEST3 packet:  \n");
+		printf("Bob: EST3 packet from Alice is not valid. \nEST3 packet:  \n");
 		print_packet(packet, EST3);
 #endif
 		return 0;

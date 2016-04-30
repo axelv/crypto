@@ -22,7 +22,7 @@
 #define SIZE MON_MODULUS_LENGTH_IN_BITS/MON_WORDSIZE // size of modulus in BYTES
 
 
-#define MONT_DEBUG 1
+#define MONT_DEBUG 0
 
 
 

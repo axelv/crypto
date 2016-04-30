@@ -13,6 +13,7 @@
 #include "slave_keys.c"
 #include "dh.c"
 #include <stdio.h>
+#include "../asymmetric/monmult.h"
 
 static uint8_t y[XYSIZE] = {0,};
 
