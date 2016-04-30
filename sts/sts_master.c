@@ -15,6 +15,7 @@
 #include "sts_master.h"
 #include "master_keys.c"
 #include "dh.c"
+#include "../asymmetric/monmult.h"
 
 static uint8_t x[XYSIZE] = {0,};
 

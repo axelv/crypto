@@ -81,13 +81,6 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		unsigned int k;
 		unsigned int j;
 
-		unsigned char i;
-		// temporary sum used in former ADD function
-		unsigned short temp_sum = 0;
-
-		// variables used in former mp_substraction function
-		unsigned short s1;
-		unsigned short s2;
 		signed short r = 0;
 		signed short c = 0;
 
@@ -103,11 +96,11 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		// carry C
 		uint8_t C = 0;
 
-//#pragma MUST_ITERATE(SIZE,SIZE,1)
+#pragma MUST_ITERATE(SIZE,SIZE,1)
 		for(k=0; k<SIZE; k++)
 		{
-//#pragma MUST_ITERATE(0,SIZE,1)
-//#pragma UNROLL(4)
+#pragma MUST_ITERATE(0,SIZE,1)
+#pragma UNROLL(4)
 			for(j=0; j<k; j++) //deze loop wordt bij de eerste iteratie van i niet uitgevoerd
 			{
 				// (C,S) = t[0] + a[j]*b[i-j]
@@ -182,11 +175,11 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		}
 
 	// STEP 2 finishing touch
-//#pragma MUST_ITERATE(2*SIZE,2*SIZE,1)
+#pragma MUST_ITERATE(2*SIZE,2*SIZE,1)
 		for(k=SIZE; k<2*SIZE; k++) // NEED warning: comparison is always true due to limited range of data type. warning is er niet meer omdat i nu short is ipv char
 		{
-//#pragma MUST_ITERATE(0,SIZE,1)
-//#pragma UNROLL(4)
+#pragma MUST_ITERATE(0,SIZE,1)
+#pragma UNROLL(4)
 			for(j=k-SIZE+1; j<SIZE; j++)
 			{
 

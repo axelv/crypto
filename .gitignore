@@ -1,0 +1,7 @@
+Release/
+Debug/
+.launches/
+SessionLogs/Base/
+SessionLogs/Session1/
+SessionLogs/Session2/
+SessionLogs/Session3/
