@@ -17,13 +17,13 @@
 
 // Montgomery Multiplication parameters
 
+//#define MON_MODULUS_LENGTH_IN_BITS 1024 // this is for testing with the DDP vectors
 #define MON_MODULUS_LENGTH_IN_BITS 1248
 #define MON_WORDSIZE 8 // Montgomery word size in bits
 #define SIZE MON_MODULUS_LENGTH_IN_BITS/MON_WORDSIZE // size of modulus in BYTES
 
 
-#define MONT_DEBUG 0
-
+#define MONT_DEBUG 1
 
 
 // Public Montgomery Multiplication functions

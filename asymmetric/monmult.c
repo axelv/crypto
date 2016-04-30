@@ -58,61 +58,78 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 {
 		signed int it;
 		#if MONT_DEBUG
-
-		printf("\n[MONMULT]\n in1:\n");
-		for(it=SIZE-1; it>=0; it--)
-		{
-			printf("%02X", in1[it]);
-		}
-		printf("\n in2:\n");
-		for(it=SIZE-1; it>=0; it--)
-		{
-			printf("%02X", in2[it]);
-		}
-		printf("\n modulus:\n");
-		for(it=SIZE-1; it>=0; it--)
-		{
-			printf("%02X", n[it]);
-		}
+			#if MON_WORDSIZE == 8
+				printf("\n[MONMULT INPUTS]\n in1:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%02X", in1[it]);
+				}
+				printf("\n in2:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%02X", in2[it]);
+				}
+				printf("\n modulus:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%02X", n[it]);
+				}
+			#elif MON_WORDSIZE == 16
+				printf("\n[MONMULT INPUTS]\n in1:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%04X", in1[it]);
+				}
+				printf("\n in2:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%04X", in2[it]);
+				}
+				printf("\n modulus:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%04X", n[it]);
+				}
+			#else
+			#endif
 		#endif
 	// STEP 1: t = a.b & STEP 2 integrated
 
 		// loop variables
-		unsigned int k;
-		unsigned int j;
+		uint32_t k;
+		uint32_t j;
 
 		signed short r = 0;
 		signed short c = 0;
 
-		// resetting t to zeros array TODO needed? 
 		// NEED opmerking onderaan pagina 8 over dimensie van t!
-		uint8_t t[3]={0x0,0x0,0x0};
+		MONWORD t[3]={0x0,0x0,0x0};
 		// variable for storing m as well as u
-		uint8_t m[SIZE];
+		MONWORD m[SIZE];
 		// sum in short (C,S)
-		unsigned int S_short = 0;
+		uint64_t S_short = 0;
 		// sum S
-		uint8_t S = 0;
+		MONWORD S = 0;
 		// carry C
-		uint8_t C = 0;
+		MONWORD C = 0;
 
 #pragma MUST_ITERATE(SIZE,SIZE,1)
 		for(k=0; k<SIZE; k++)
 		{
 #pragma MUST_ITERATE(0,SIZE,1)
 #pragma UNROLL(4)
-			for(j=0; j<k; j++) //deze loop wordt bij de eerste iteratie van i niet uitgevoerd
+			for(j=0; j<k; j++)
 			{
 				// (C,S) = t[0] + a[j]*b[i-j]
 					// multiplication of two chars results in short
 					S_short = t[0] + in1[j]*in2[k-j];
 					// S_short can be split in first char=C, second char=S
-					C = (S_short >> (8)) & 0xff;
-					S = S_short & 0xff; // TODO moet hier cast (char)?
+					C = (MONWORD) (S_short >> (MON_WORDSIZE));
+					S = (MONWORD) S_short;
 
 				// add carry C to t[1] and propagate carry if needed
 					// carry is second char of short
-					t[2] += (t[1] + C) >> 8;
+					t[2] += (t[1] + C) >> MON_WORDSIZE;
 					// actual sum is first char of short
 					t[1] = t[1] + C;
 
@@ -120,14 +137,14 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 					// multiplication of two chars results in short
 					S_short = S + m[j]*n[k-j];
 					// S_short can be split in first char=C, second char=S
-					C = (S_short >> (8)) & 0xff;
-					S = S_short & 0xff; // TODO moet hier cast (char)?
+					C = (MONWORD) (S_short >> MON_WORDSIZE);
+					S = (MONWORD) S_short;
 
 				t[0] = S;
 
 				// add carry C to t[1] and propagate carry if needed
 					// carry is second char of short
-					t[2] += (t[1] + C) >> 8;
+					t[2] += (t[1] + C) >> MON_WORDSIZE;
 					// actual sum is first char of short
 					t[1] = t[1] + C;
 			}
@@ -136,35 +153,29 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 					// multiplication of two chars results in short
 					S_short = t[0] + in1[k]*in2[0];
 					// S_short can be split in first char=C, second char=S
-					C = (S_short >> 8) & 0xff;
-					S = S_short & 0xff; // TODO moet hier cast (char)?
+					C = (MONWORD) (S_short >> MON_WORDSIZE);
+					S = (MONWORD) S_short; // TODO moet hier cast (char)?
 
 			// add carry C to t[1] and propagate carry if needed
 				// carry is second char of short
-				t[2] += (t[1] + C) >> 8;
+				t[2] += (t[1] + C) >> MON_WORDSIZE;
 				// actual sum is first char of short
 				t[1] = t[1] + C;
 
 			// m[i] = S*nprime[0] mod W
 			// W = 2**w(ordsize) =256 als w=8
-			// W is te interpreteren als de nieuwe radix van deze mp bewerking
-			// w = 8 bit 
-			// module 2**8 is het zelfde als shiften met 8 als de input een 16 bit getal is (short=char*char)
-			//  & 0xff is niet nodig, maar weglaten speed code niet up
-			// initiele code m[i] = ((S*nprime[0]) >> 8) & 0xff;
-			// ik denk dat shiften niet nodig is want je wil de LSB houden
-			m[k] = (S*nprime_0) & 0xff;
+			m[k] = (MONWORD) (S*nprime_0);
 
 			// (C,S) = S + m[i]*n[0]
 					// multiplication of two chars results in short
 					S_short = S + m[k]*n[0];
 					// S_short can be split in first char=C, second char=S
-					C = (S_short >> 8) & 0xff;
-					S = S_short & 0xff; // TODO moet hier cast (char)?
+					C = (MONWORD) (S_short >> MON_WORDSIZE);
+					S = (MONWORD) S_short; // TODO moet hier cast (char)?
 
 			// add carry C to t[1] and propagate carry if needed
 				// carry is second char of short
-				t[2] += (t[1] + C) >> 8;
+				t[2] += (t[1] + C) >> MON_WORDSIZE;
 				// actual sum is first char of short
 				t[1] = t[1] + C;
 
@@ -187,12 +198,12 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 					// multiplication of two chars results in short
 					S_short = t[0] + in1[j]*in2[k-j];
 					// S_short can be split in first char=C, second char=S
-					C = (S_short >> 8) & 0xff;
-					S = S_short & 0xff; // TODO moet hier cast (char)?
+					C = (MONWORD) (S_short >> MON_WORDSIZE);
+					S = (MONWORD) S_short; // TODO moet hier cast (char)?
 
 				// add carry C to t[1] and propagate carry if needed
 					// carry is second char of short
-					t[2] += (t[1] + C) >> 8;
+					t[2] += (t[1] + C) >> MON_WORDSIZE;
 					// actual sum is first char of short
 					t[1] = t[1] + C;
 
@@ -200,14 +211,14 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 					// multiplication of two chars results in short
 					S_short = S + m[j]*n[k-j];
 					// S_short can be split in first char=C, second char=S
-					C = (S_short >> 8) & 0xff;
-					S = S_short & 0xff; // TODO moet hier cast (char)?
+					C = (MONWORD) (S_short >> MON_WORDSIZE);
+					S = (MONWORD) S_short; // TODO moet hier cast (char)?
 
 				t[0] = S;
 
 				// add carry C to t[1] and propagate carry if needed
 					// carry is second char of short
-					t[2] += (t[1] + C) >> 8;
+					t[2] += (t[1] + C) >> MON_WORDSIZE;
 					// actual sum is first char of short
 					t[1] = t[1] + C;
 			}
@@ -225,7 +236,7 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		if(t[0]!=0){
 			// u>n, subtraction needed
 			#if MONT_DEBUG
-			printf("\n t[0] is %02X : u>n, subtraction needed.",t[0]);
+			printf("\n[MONMULT STEP3] t[0] is 0x%0X : u>n, subtraction needed.",t[0]);
 			#endif
 			c=0;
 			for(it=0;it<SIZE;it++){
@@ -244,7 +255,7 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 			for(it=SIZE-1; it>=0;it--){
 				if(m[it]>n[it]){
 					#if MONT_DEBUG
-					printf("subtraction needed.");
+					printf("[MONMULT STEP3] subtraction needed.");
 					#endif
 					// u>n, subtraction needed
 					c=0;
@@ -274,11 +285,22 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		res[k]=m[k];	
 	}
 	#if MONT_DEBUG
-	printf("\n res:\n");
-	for(it=SIZE-1; it>=0; it--)
-	{
-		printf("%02X", res[it]);
-	}
+		#ifdef MON_WORDSIZE
+			#if MON_WORDSIZE == 8
+				printf("\n[MONMULT RESULT (Big Endian)]:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%02X", res[it]);
+				}
+			#elif MON_WORDSIZE == 16
+				printf("\n[MONMULT RESULT (Big Endian)]:\n");
+				for(it=SIZE-1; it>=0; it--)
+				{
+					printf("%02X", res[it]);
+				}
+			#else 
+			#endif
+		#endif
 	#endif
 }
 
