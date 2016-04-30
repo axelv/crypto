@@ -17,39 +17,41 @@
 #include <stdio.h>
 #include "monmult.h"
 
-uint8_t nprime_0 = 0; // To store the nprime_0 state across monmult calls. mod_inverse should only be called when a new modulus is defined.
+MONWORD nprime_0 = 0; // To store the nprime_0 state across monmult calls. mod_inverse should only be called when a new modulus is defined.
 
 
-// Computes x**-1 mod b for x odd and b being 2**(8)
-// x begin ODD is REQUIRED and assumed in this function.
+// Computes x**-1 mod b for x odd and b being 2**(MON_WORDSIZE)
+// x being ODD is REQUIRED and assumed in this function.
 // For its normal use (inverting the least significant word of the modulus, this is normally fulfilled because the modulus has to be odd.
 // Based on algorithm found in "A Cryptographic Library for the Motorola DSP56000"
-uint8_t mod_inverse(uint8_t x)
+MONWORD mod_inverse(MONWORD x)
 {
-	uint8_t y[MWORDSIZE+1] = {0,1,};
-	uint16_t bitmask = 0;
-	unsigned char i;
-	for(i=2;i<MWORDSIZE+1;i++){
-		bitmask = 0xFFFF;      //1111111111111111
+	MONWORD y[MON_WORDSIZE+1] = {0,1,};
+	uint32_t bitmask = 0;
+	uint32_t i;
+	for(i=2;i<MON_WORDSIZE+1;i++){
+		bitmask = 0xFFFFFFFF;      //1111111111111111
 		bitmask = bitmask << i;//1111111111111100
 		bitmask = ~bitmask;    //0000000000000011 to select the last 2 bits, which is the same as doing modulo 2**2
 		//fprintf(stdout,"Bitmask is 0x%02X\n", bitmask);
-			if((x*y[i-1] & bitmask) < (0x0001) << (i-1) ){
+			if((x*y[i-1] & bitmask) < (0x00000001) << (i-1) ){
 				y[i] = y[i-1];
 			}else{
 				y[i] = y[i-1] + ((0x01) << (i-1));
 			}
-		//fprintf(stdout,"\n[MODINV]y[%0d] is %0d\n", i, y[i]);
+		fprintf(stdout,"\n[MODINV] y[%0d] is %0d\n", i, y[i]);
 	}
-	return y[MWORDSIZE];
+	return y[MON_WORDSIZE];
 }
 
-void setup_monmult(uint8_t *n){
-	uint8_t min_n0 = (-n[0]) & 0xFF;
+void setup_monmult(MONWORD *n){
+	MONWORD min_n0 = (-n[0]) & 0xFFFF;
 	//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
 	nprime_0 = mod_inverse(min_n0);
+	fprintf(stdout,"\n[MODINV] nprime_0 is 0x%0X, in decimal (unsigned) : %0d\n", nprime_0,nprime_0);
 }
 
+/*
 void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t *n)
 {
 		signed int it;
@@ -105,11 +107,11 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		#if MONT_DEBUG
 		fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
 		#endif
-#pragma MUST_ITERATE(SIZE,SIZE,1)
+//#pragma MUST_ITERATE(SIZE,SIZE,1)
 		for(k=0; k<SIZE; k++)
 		{
-#pragma MUST_ITERATE(0,SIZE,1)
-#pragma UNROLL(4)
+//#pragma MUST_ITERATE(0,SIZE,1)
+//#pragma UNROLL(4)
 			for(j=0; j<k; j++) //deze loop wordt bij de eerste iteratie van i niet uitgevoerd
 			{
 				// (C,S) = t[0] + a[j]*b[i-j]
@@ -184,11 +186,11 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		}
 
 	// STEP 2 finishing touch
-#pragma MUST_ITERATE(2*SIZE,2*SIZE,1)
+//#pragma MUST_ITERATE(2*SIZE,2*SIZE,1)
 		for(k=SIZE; k<2*SIZE; k++) // NEED warning: comparison is always true due to limited range of data type. warning is er niet meer omdat i nu short is ipv char
 		{
-#pragma MUST_ITERATE(0,SIZE,1)
-#pragma UNROLL(4)
+//#pragma MUST_ITERATE(0,SIZE,1)
+//#pragma UNROLL(4)
 			for(j=k-SIZE+1; j<SIZE; j++)
 			{
 
@@ -293,6 +295,6 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 	{
 		printf("0x%02X,", res[it]);
 	}*/
-	#endif
-}
+	//#endif
+//}
 

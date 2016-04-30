@@ -1,24 +1,43 @@
 /***********************************************************************
-* FILENAME :        monmult.h
+* FILENAME :        monmult.h     
 *
 * DESCRIPTION :
 *       Header file of monmult.c, exposing the function and defining
 *	some constants.
 *
 *
-* NOTES :
-*
+* NOTES : 
+* 
 * AUTHOR :    mraes
 *
 *
 *****/
 #ifndef __MONMULT_H__
 #define __MONMULT_H__
-#define SIZE 156 // size of modulus in BYTES
-#define MWORDSIZE 8 // in bits
-#define MONT_DEBUG 0
 
-void setup_monmult(uint8_t *n);
-void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t *n);
+// Montgomery Multiplication parameters
+
+#define MON_MODULUS_LENGTH_IN_BITS 1024
+#define MON_WORDSIZE 16 // Montgomery word size in bits
+#define SIZE MON_MODULUS_LENGTH_IN_BITS/MON_WORDSIZE // size of modulus in BYTES
+
+
+#define MONT_DEBUG 1
+
+
+
+// Public Montgomery Multiplication functions
+#if MON_WORDSIZE == 8
+	#define MONWORD uint8_t
+	void setup_monmult(MONWORD *n);
+	void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD *n);
+#elif MON_WORDSIZE == 16
+	#define MONWORD uint16_t
+	void setup_monmult(MONWORD *n);
+	void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD *n);
+#else
+	#error "MWORDSIZE (monmult.h) is not 8 or 16"
+#endif
+
 #endif
 
