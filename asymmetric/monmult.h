@@ -16,14 +16,24 @@
 #define __MONMULT_H__
 
 // Montgomery Multiplication parameters
+#define MONT_DEBUG 1
 
-//#define MON_MODULUS_LENGTH_IN_BITS 1024 // this is for testing with the DDP vectors
-#define MON_MODULUS_LENGTH_IN_BITS 1248
+#define MON_MODULUS_LENGTH_IN_BITS 1248 // 1024 for testing with DDP vectors, 1248 for normal operation for PenO
+
 #define MON_WORDSIZE 8 // Montgomery word size in bits
+
+
+
+// The rest of the parameters are calculated from these first two.
 #define SIZE MON_MODULUS_LENGTH_IN_BITS/MON_WORDSIZE // size of modulus in BYTES
 
-
-#define MONT_DEBUG 1
+// Some definitions for the MON_WORD_PRINTSTRING
+#if MON_WORDSIZE == 8
+#define MON_WORD_PRINTSTRING "%02X"
+#elif MON_WORDSIZE == 16
+#define MON_WORD_PRINTSTRING "%04X"
+#else // for other cases, add here
+#endif
 
 
 // Public Montgomery Multiplication functions
@@ -36,7 +46,7 @@
 	void setup_monmult(MONWORD *n);
 	void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD *n);
 #else
-	#error "MWORDSIZE (monmult.h) is not 8 or 16"
+	#error "MWORDSIZE (monmult.h) is not 8 or 16" // If you want add for example 32 bit, here is the spot.
 #endif
 
 #endif

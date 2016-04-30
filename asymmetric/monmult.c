@@ -58,40 +58,24 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 {
 		signed int it;
 		#if MONT_DEBUG
-			#if MON_WORDSIZE == 8
-				printf("\n[MONMULT INPUTS]\n in1:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%02X", in1[it]);
-				}
-				printf("\n in2:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%02X", in2[it]);
-				}
-				printf("\n modulus:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%02X", n[it]);
-				}
-			#elif MON_WORDSIZE == 16
-				printf("\n[MONMULT INPUTS]\n in1:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%04X", in1[it]);
-				}
-				printf("\n in2:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%04X", in2[it]);
-				}
-				printf("\n modulus:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%04X", n[it]);
-				}
-			#else
-			#endif
+
+
+			printf("\n[MONMULT INPUTS]\n in1:\n");
+			for(it=SIZE-1; it>=0; it--)
+			{
+				printf(MON_WORD_PRINTSTRING, in1[it]);
+			}
+			printf("\n in2:\n");
+			for(it=SIZE-1; it>=0; it--)
+			{
+				printf(MON_WORD_PRINTSTRING, in2[it]);
+			}
+			printf("\n modulus:\n");
+			for(it=SIZE-1; it>=0; it--)
+			{
+				printf(MON_WORD_PRINTSTRING, n[it]);
+			}
+
 		#endif
 	// STEP 1: t = a.b & STEP 2 integrated
 
@@ -285,22 +269,13 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		res[k]=m[k];	
 	}
 	#if MONT_DEBUG
-		#ifdef MON_WORDSIZE
-			#if MON_WORDSIZE == 8
-				printf("\n[MONMULT RESULT (Big Endian)]:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%02X", res[it]);
-				}
-			#elif MON_WORDSIZE == 16
-				printf("\n[MONMULT RESULT (Big Endian)]:\n");
-				for(it=SIZE-1; it>=0; it--)
-				{
-					printf("%02X", res[it]);
-				}
-			#else 
-			#endif
-		#endif
+
+		printf("\n[MONMULT RESULT (Big Endian)]:\n");
+		for(it=SIZE-1; it>=0; it--)
+		{
+			printf(MON_WORD_PRINTSTRING, res[it]);
+		}
+
 	#endif
 }
 
