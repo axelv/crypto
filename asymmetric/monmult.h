@@ -17,8 +17,8 @@
 
 // Montgomery Multiplication parameters
 
-#define MON_MODULUS_LENGTH_IN_BITS 1024
-#define MON_WORDSIZE 16 // Montgomery word size in bits
+#define MON_MODULUS_LENGTH_IN_BITS 1248
+#define MON_WORDSIZE 8 // Montgomery word size in bits
 #define SIZE MON_MODULUS_LENGTH_IN_BITS/MON_WORDSIZE // size of modulus in BYTES
 
 

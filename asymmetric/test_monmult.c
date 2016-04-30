@@ -37,9 +37,9 @@ void convert_8_to_16(uint16_t *res, uint8_t *a){
 
 int main() 
 {
-	printf("\n[MONMULT TEST] MON_MODULUS_LENGTH_IN_BITS: %d, MON_WORDSIZE, %d, SIZE:%d\n",MON_MODULUS_LENGTH_IN_BITS,MON_WORDSIZE,SIZE);
+	printf("\n[MONMULT TEST] MON_MODULUS_LENGTH_IN_BITS: %d, MON_WORDSIZE: %d, SIZE:%d\n",MON_MODULUS_LENGTH_IN_BITS,MON_WORDSIZE,SIZE);
 	signed int i;
-	#if MON_WORDSIZE == 16
+	#if MON_WORDSIZE == 16                     /////////////////////////// 16 bit
 		MONWORD a16[SIZE];
 		MONWORD b16[SIZE];
 		MONWORD n16[SIZE];
@@ -47,27 +47,35 @@ int main()
 		convert_8_to_16(b16,b);
 		convert_8_to_16(n16,n);	
 		setup_monmult(n16);
-	#elif MON_WORDSIZE == 8
+		montgomery_multiplication(result_mon_mul,a16,b16,n16);
+		printf("\nResult of monmult is:\n");
+		for(i=0; i<SIZE; i++)
+		{
+			fprintf(stdout,"0x%04X,", result_mon_mul[i]);
+		}
+		printf("\n");
+		printf("\nResult in Maple format (Big Endian) is:\n");
+		for(i=SIZE-1; i>=0; i--)
+		{
+			fprintf(stdout,"%04X", result_mon_mul[i]);
+		}	
+	#elif MON_WORDSIZE == 8                     /////////////////////////// 8bit
 		setup_monmult(n);
+		montgomery_multiplication(result_mon_mul,a,b,n);
+		printf("\n[MONMULT TEST] Result:\n");
+		for(i=0; i<SIZE; i++)
+		{
+			fprintf(stdout,"0x%02X,", result_mon_mul[i]);
+		}
+		printf("\n");
+		printf("\n[MONMULT TEST] Result in Maple format (Big Endian) is:\n");
+		for(i=SIZE-1; i>=0; i--)
+		{
+			fprintf(stdout,"%02X", result_mon_mul[i]);
+		}	
 	#else
 		#error
 	#endif
 	
-	
-	/*
-	
-	montgomery_multiplication(result_mon_mul,a,b,n);
-	printf("\nResult of monmult is:\n");
-	for(i=0; i<SIZE; i++)
-	{
-		fprintf(stdout,"0x%02X,", result_mon_mul[i]);
-	}
-	printf("\n");
-	printf("\nResult in Maple format (Big Endian) is:\n");
-	for(i=SIZE-1; i>=0; i--)
-	{
-		fprintf(stdout,"%02X", result_mon_mul[i]);
-	}	
-	*/
 	return 0;
 }

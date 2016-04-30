@@ -39,7 +39,7 @@ MONWORD mod_inverse(MONWORD x)
 			}else{
 				y[i] = y[i-1] + ((0x01) << (i-1));
 			}
-		fprintf(stdout,"\n[MODINV] y[%0d] is %0d\n", i, y[i]);
+		//fprintf(stdout,"\n[MODINV] y[%0d] is %0d\n", i, y[i]);
 	}
 	return y[MON_WORDSIZE];
 }
@@ -47,17 +47,19 @@ MONWORD mod_inverse(MONWORD x)
 void setup_monmult(MONWORD *n){
 	MONWORD min_n0 = (-n[0]) & 0xFFFF;
 	//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
-	nprime_0 = mod_inverse(min_n0);
+	nprime_0 = mod_inverse(min_n0); // nprime_0 is static/global!
+	#if MONT_DEBUG
 	fprintf(stdout,"\n[MODINV] nprime_0 is 0x%0X, in decimal (unsigned) : %0d\n", nprime_0,nprime_0);
-}
+	#endif
+	}
 
-/*
-void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t *n)
+
+void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD *n)
 {
 		signed int it;
 		#if MONT_DEBUG
 
-		printf("\n[MULT]\n in1:\n");
+		printf("\n[MONMULT]\n in1:\n");
 		for(it=SIZE-1; it>=0; it--)
 		{
 			printf("%02X", in1[it]);
@@ -101,12 +103,6 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 		// carry C
 		uint8_t C = 0;
 
-		//uint8_t min_n0 = (-n[0]) & 0xFF;
-		//fprintf(stdout,"\n[MODINV] min_n0 is 0x%02X, in decimal (unsigned) : %0d\n", min_n0,min_n0);
-		//uint8_t nprime_0 = mod_inverse(min_n0);
-		#if MONT_DEBUG
-		fprintf(stdout,"\n[MODINV] nprime_0 is 0x%02X, in decimal (unsigned) : %0d\n", nprime_0 ,nprime_0);
-		#endif
 //#pragma MUST_ITERATE(SIZE,SIZE,1)
 		for(k=0; k<SIZE; k++)
 		{
@@ -290,11 +286,6 @@ void montgomery_multiplication(uint8_t *res, uint8_t *in1, uint8_t *in2, uint8_t
 	{
 		printf("%02X", res[it]);
 	}
-	/*printf("\n res (LITTLE ENDIAN):\n");
-	for(it=0; it<SIZE; it++)
-	{
-		printf("0x%02X,", res[it]);
-	}*/
-	//#endif
-//}
+	#endif
+}
 
