@@ -1,6 +1,23 @@
 #include "tools.h"
 #include "../constants.h"
 
+
+// Convert a an array with 8 bit words to an array with 16 bit words.
+void convert_8_to_16(uint16_t *res, uint8_t *in){
+        int i;
+        for(i=0;i<156/2;i++){
+                res[i] = in[2*i] + (in[(2*i)+1]<<8);
+        }
+}
+// Convert a an array with 16 bit words to an array with 8 bit words.
+void convert_16_to_8(uint8_t *res, uint16_t *in){
+        int i;
+        for(i=0;i<156/2;i++){
+                res[2*i] = (uint8_t) in[i];
+                res[(2*i)+1] = (uint8_t) (in[i]>>8);
+        }
+}
+
 void int32_to_int8(uint8_t output[4], uint32_t input){
 	output[0] = input;   
 	output[1] = input >> 8; 

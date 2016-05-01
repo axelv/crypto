@@ -18,21 +18,7 @@
 #include <stdio.h>
 #include "monmult.h"
 #include "monexp.h"
-
-void convert_8_to_16(uint16_t *res, uint8_t *in){
-        int i;
-        for(i=0;i<128/2;i++){
-                res[i] = in[2*i] + (in[(2*i)+1]<<8);
-        }
-}
-
-void convert_16_to_8(uint8_t *res, uint16_t *in){
-        int i;
-        for(i=0;i<128/2;i++){
-                res[2*i] = (uint8_t) in[i];
-                res[(2*i)+1] = (uint8_t) (in[i]>>8);
-        }
-}
+#include "../tools/tools.h" // for the TEMPORARY 8 to 16 bit conversion
 
 
 void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,uint8_t exponent_length, uint8_t *n, uint8_t *rmodn, uint8_t *r2modn)
