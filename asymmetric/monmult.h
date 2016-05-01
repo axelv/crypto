@@ -20,7 +20,7 @@
 
 #define MON_MODULUS_LENGTH_IN_BITS 1248 // 1024 for testing with DDP vectors, 1248 for normal operation for PenO
 
-#define MON_WORDSIZE 8 // Montgomery word size in bits
+#define MON_WORDSIZE 16 // Montgomery word size in bits
 
 
 
