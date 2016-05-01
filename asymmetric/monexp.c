@@ -19,6 +19,22 @@
 #include "monmult.h"
 #include "monexp.h"
 
+void convert_8_to_16(uint16_t *res, uint8_t *in){
+        int i;
+        for(i=0;i<128/2;i++){
+                res[i] = in[2*i] + (in[(2*i)+1]<<8);
+        }
+}
+
+void convert_16_to_8(uint8_t *res, uint16_t *in){
+        int i;
+        for(i=0;i<128/2;i++){
+                res[2*i] = (uint8_t) in[i];
+                res[(2*i)+1] = (uint8_t) (in[i]>>8);
+        }
+}
+
+
 void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,uint8_t exponent_length, uint8_t *n, uint8_t *rmodn, uint8_t *r2modn)
 {
 	signed int i;
@@ -42,19 +58,40 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,ui
 	//uint8_t r2modn[SIZE] ={0x1A,0x1C,0x3E,0xFD,0x47,0xBE,0x7F,0x6E,0x0C,0xC4,0x25,0xCE,0xEA,0x24,0x25,0x72,0xC5,0x68,0x14,0x23,0x08,0x93,0x2C,0x0C,0x9A,0x84,0x61,0xC0,0x18,0x16,0x27,0x64,0xF0,0x66,0xF7,0x1E,0x23,0xC2,0xEF,0xD3,0x87,0x66,0xB1,0x98,0x82,0x58,0x0C,0x46,0xCB,0x87,0xA7,0x40,0x92,0x94,0x0F,0x76,0x0F,0xA9,0xC6,0x70,0x3B,0x48,0x2B,0x27,0xE6,0xBB,0xA7,0x8E,0xD8,0x5E,0xC2,0x36,0x19,0x3E,0xDF,0x42,0x50,0x78,0x2C,0x2A,0x20,0x27,0x4E,0x60,0x6E,0x9C,0xF9,0x11,0x5E,0xD9,0x1B,0x83,0x56,0x46,0xE4,0x1D,0x93,0xE6,0x5B,0x0C,0xCE,0x4A,0x2B,0xC5,0xAA,0x0F,0xC0,0xED,0x30,0x58,0x77,0xD3,0x45,0xEC,0x71,0xC1,0x32,0xF4,0xEF,0x13,0xD3,0xB6,0x00,0x26,0xE5,0x71,0x4C,0x7D,0x76,0xBB,0x1F,0x0D,0xC6,0x45,0x2F,0x7E,0x07,0xA8,0x49,0xC2,0x20,0x35,0x3B,0x52,0xE7,0xE8,0x51,0x47,0x7A,0xDA,0x1B,0xFB,0xA8,0xE8,0x7C,0x14};
 
 
+	#if MON_WORDSIZE == 16 // for internal conversion to 16 bit numbers. This is a temporary measure until higher layer code (eg. the key storage format) is adapted as well.
+	uint16_t res16[SIZE];
+	uint16_t base16[SIZE];
+	uint16_t n16[SIZE];
+	uint16_t rmodn16[SIZE];
+	uint16_t r2modn16[SIZE];
+	convert_8_to_16(base16,base);
+	convert_8_to_16(n16,n);
+	convert_8_to_16(rmodn16,rmodn);
+	convert_8_to_16(r2modn16,r2modn);
+	#endif
 
-	uint8_t xtilde[SIZE];
-	uint8_t A[SIZE];
-	uint8_t one[SIZE] = {0x01,0,};
-	uint8_t bln_exp_start = 0;
 
-	setup_monmult(n); // Setting up the montgomery multiplication
+	MONWORD xtilde[SIZE];
+	MONWORD A[SIZE];
+	MONWORD one[SIZE] = {0x01,0,};
+	uint8_t bln_exp_start = 0; // For lack of a boolean type, this meant to be a boolean.
 
-	// 1
-	montgomery_multiplication(xtilde, base, r2modn,n);
-	for(i=0;i<SIZE;i++){ // Copy rmodn into A
-		A[i] = rmodn[i];
-	}
+	#if MON_WORDSIZE == 16
+		setup_monmult(n16); // Setting up the montgomery multiplication
+		// 1
+		montgomery_multiplication(xtilde, base16, r2modn16,n16);
+		for(i=0;i<SIZE;i++){ // Copy rmodn into A
+			A[i] = rmodn16[i];
+		}
+	#else
+		setup_monmult(n); // Setting up the montgomery multiplication
+		// 1
+		montgomery_multiplication(xtilde, base, r2modn,n);
+		for(i=0;i<SIZE;i++){ // Copy rmodn into A
+			A[i] = rmodn[i];
+		}
+	#endif
+
 
 	//2
 	#if MONT_DEBUG
@@ -63,12 +100,24 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,ui
 	for(i=exponent_length-1;i>=0; i--){
 		for(j=7;j>=0;j--){
 			if(bln_exp_start){
-				montgomery_multiplication(A,A,A,n);
+
+				#if MON_WORDSIZE == 16
+					montgomery_multiplication(A,A,A,n16);
+				#else
+					montgomery_multiplication(A,A,A,n);
+				#endif
+
 				if((exponent[i]>>j) & 0x01){
 					#if MONT_DEBUG
 					printf("\n[EXP] Bit %d of the exponent is: 1\n",(i*8)+j);
 					#endif
-					montgomery_multiplication(A,A,xtilde,n);
+
+					#if MON_WORDSIZE == 16
+						montgomery_multiplication(A,A,xtilde,n16);
+					#else
+						montgomery_multiplication(A,A,xtilde,n);
+					#endif
+
 				}else{
 					#if MONT_DEBUG
 					printf("\n[EXP] Bit %d of the exponent is: 0\n",(i*8)+j);
@@ -80,8 +129,15 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,ui
 					printf("\n[EXP] Bit %d of the exponent is the first nonzero bit\n",(i*8)+j);
 					#endif
 					bln_exp_start=1;
+
+					#if MON_WORDSIZE == 16
+					montgomery_multiplication(A,A,A,n16);
+					montgomery_multiplication(A,A,xtilde,n16);
+					#else
 					montgomery_multiplication(A,A,A,n);
 					montgomery_multiplication(A,A,xtilde,n);
+					#endif
+
 					}
 			}
 		}
@@ -89,11 +145,29 @@ void montgomery_exponentiation(uint8_t *res, uint8_t *base, uint8_t *exponent,ui
 	#if MONT_DEBUG
 	printf("\n[EXP] Step 3:\n");
 	#endif
-	montgomery_multiplication(A,A,one,n);
+
+	#if MON_WORDSIZE == 16
+		montgomery_multiplication(A,A,one,n16);
+	#else
+		montgomery_multiplication(A,A,one,n);
+	#endif
+
 	#if MONT_DEBUG
 	printf("\n[EXP] Step 4:\n");
 	#endif
 	for(i=0;i<SIZE;i++){ // Copy A into res
-		res[i] = A[i];
+
+		#if MON_WORDSIZE == 16
+			res16[i] = A[i];
+		#else
+			res[i] = A[i];
+		#endif
+
 	}
+
+#if MON_WORDSIZE == 16
+	convert_16_to_8(res,res16);
+#else
+#endif
+
 }
