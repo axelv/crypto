@@ -16,7 +16,7 @@
 #define __MONMULT_H__
 
 // Montgomery Multiplication parameters
-#define MONT_DEBUG 0
+#define MONT_DEBUG 1
 
 #define MON_MODULUS_LENGTH_IN_BITS 1248 // 1024 for testing with DDP vectors, 1248 for normal operation for PenO
 

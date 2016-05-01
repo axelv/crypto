@@ -83,8 +83,8 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		uint32_t k;
 		uint32_t j;
 
-		signed short r = 0;
-		signed short c = 0;
+		signed int r = 0;
+		signed int c = 0;
 
 		// NEED opmerking onderaan pagina 8 over dimensie van t!
 		MONWORD t[3]={0x0,0x0,0x0};
@@ -239,7 +239,7 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 			for(it=SIZE-1; it>=0;it--){
 				if(m[it]>n[it]){
 					#if MONT_DEBUG
-					printf("[MONMULT STEP3] subtraction needed.");
+					printf("\n[MONMULT STEP3] subtraction needed.");
 					#endif
 					// u>n, subtraction needed
 					c=0;
