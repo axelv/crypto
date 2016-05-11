@@ -1,8 +1,8 @@
 #include "crypto_wrapper.h"
 #include "tools/tools.h"
 
-static int valid_packets;
-static int invalid_packets;
+uint32_t valid_packets = 0;
+uint32_t invalid_packets = 0;
 
 int initialize_connection(){
 	uint8_t packet[MAX_PACK_LENGTH];
