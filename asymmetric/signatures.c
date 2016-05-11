@@ -19,6 +19,8 @@
 #include "signatures.h"
 #include "../constants.h"
 
+#define OLDSIZE 156
+
 #define SIGPRINT 0 // enable debug statements for this module
 
 /* From RFC 3447, Public-Key Cryptography Standards (PKCS) #1: RSA
@@ -106,23 +108,23 @@ void RSASSA_PKCS1_V1_5_SIGN(uint8_t *S,uint8_t *privkey,unsigned int privkey_len
 
    Errors: "message too long"; "RSA modulus too short"
 */
-	uint8_t encoded_msg[SIZE];
+	uint8_t encoded_msg[OLDSIZE] = {0,};
 	unsigned int i;
 // Step 1: EM = EMSA-PKCS1-V1_5-ENCODE (M, k)
-	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,SIZE);
+	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,OLDSIZE);
 // Step 2: S = Sign EM using rsa_privkey
 
 	// Let's try and change the encoded msg endianness
-	uint8_t encoded_msg_LE[SIZE];
-	for(i=0;i<SIZE;i++){
-		encoded_msg_LE[i] = encoded_msg[SIZE-1-i];
+	uint8_t encoded_msg_LE[OLDSIZE] = {0,};
+	for(i=0;i<OLDSIZE;i++){
+		encoded_msg_LE[i] = encoded_msg[OLDSIZE-1-i];
 	}
 	montgomery_exponentiation(S,encoded_msg_LE,privkey,privkey_length,modulus,rmodn, r2modn);
 
 // Step 3: output S
 	#if SIGPRINT
 	printf("\n[RSASSA]_PKCS1_V1_5_SIGN\n");
-	for(i=0;i<SIZE;i++){
+	for(i=0;i<OLDSIZE;i++){
 		printf("%02x",S[i]);
 	}
 	printf("\n");
@@ -144,28 +146,28 @@ uint8_t RSASSA_PKCS1V1_5_VERIFY(uint8_t *M, unsigned int M_length, uint8_t *S,ui
 
    Errors: "message too long"; "RSA modulus too short"
 */
-	uint8_t encoded_msg[SIZE];
-	uint8_t msg_to_be_compared_to_encoded[SIZE];
+	uint8_t encoded_msg[OLDSIZE];
+	uint8_t msg_to_be_compared_to_encoded[OLDSIZE];
 	unsigned int i;
 // Step 1: Verify signature using rsa_pubkey
 	montgomery_exponentiation(msg_to_be_compared_to_encoded,S,pubkey,pubkey_length,modulus,rmodn,r2modn);
 	#if SIGPRINT
 	printf("\n[RSASSA]_PKCS1_V1_5_VERIFY: msg_to_be_compared_to_encoded\n");
-	for(i=0;i<SIZE;i++){
+	for(i=0;i<OLDSIZE;i++){
 		printf("%02x",msg_to_be_compared_to_encoded[i]);
 	}
 	printf("\n");
 	#endif
 // Step 2: EM' = EMSA-PKCS1-V1_5-ENCODE (M, k)
 
-	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,SIZE);
+	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,OLDSIZE);
 	// change encoded msg endianness
-	uint8_t encoded_msg_LE[SIZE];
-	for(i=0;i<SIZE;i++){
-		encoded_msg_LE[i] = encoded_msg[SIZE-1-i];
+	uint8_t encoded_msg_LE[OLDSIZE];
+	for(i=0;i<OLDSIZE;i++){
+		encoded_msg_LE[i] = encoded_msg[OLDSIZE-1-i];
 	}
 // Step 3: if EM' == EM: Signature VALID
-	int Signature_Valid = !memcmp(encoded_msg_LE,msg_to_be_compared_to_encoded,SIZE); // 0 if equal
+	int Signature_Valid = !memcmp(encoded_msg_LE,msg_to_be_compared_to_encoded,OLDSIZE); // 0 if equal
 	#if SIGPRINT
 	if(Signature_Valid){
 		printf("\n[RSASSA]_PKCS1_V1_5_VERIFY : SIGNATURE IS VALID\n");
