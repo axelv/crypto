@@ -15,7 +15,7 @@ Repository for P&D: Crypto Team 1.
 **OPTIMISATIONS**
 - Replace Montgomery Mult loops with ASM versions, using multiply-accumulate shiz.
 - M: Exponentiation: We mostly need squaring so maybe implement a more efficient MontSq(x) instead of MontMult(x,x)
-- General restructuring of crypto code might give little boost?
+- Optimize counter variable sizes (als ze maar tot 256 moeten tellen heb je geen integer nodig)
 
 
 ##Notes:
