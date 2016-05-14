@@ -1,2 +1,0 @@
-sha2prog.c: In function 'main':
-sha2prog.c:71: warning: implicit declaration of function 'fileno'
