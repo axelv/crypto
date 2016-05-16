@@ -48,6 +48,7 @@ crypto_wrapper.c&h: needed for the above demos.
 All other files (with exclusion of the SBC directory) are used in the TI Code Composer Studio.
 
 04. Building
+First run make clean
 
 For the integrated code run:
 make integration
