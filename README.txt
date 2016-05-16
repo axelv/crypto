@@ -47,7 +47,8 @@ crypto_wrapper.c&h: needed for the above demos.
 03. Other files
 All other files (with exclusion of the SBC directory) are used in the TI Code Composer Studio.
 
-04. Building
+04. Building and running
+04.01 For x86
 First run make clean
 
 For the integrated code run:
@@ -57,3 +58,6 @@ make integration
 For the crypto-only code run:
 make crypto
 ./crypto
+
+04.02 For Texas Instruments DSP
+Load the code into the TI CCS and it should build and run without a problem
