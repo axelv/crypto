@@ -8,6 +8,7 @@
 *       int     monmult(  )
 *
 * NOTES : Using the Finely Integrated Product Scanning (FIPS) algorithm.
+*		  Which can be found in http://algnt.satyukov.ru/books/j37acmon.pdf (accessed on 16/05/2016)
 *
 * AUTHOR :    mraes
 *
@@ -87,11 +88,11 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 		signed int c = 0;
 
 		// NEED opmerking onderaan pagina 8 over dimensie van t!
-		MONWORD t[3]={0x0,0x0,0x0};
+		MONWORD t[3]={0x0,0x0,0x0}; // See note at the bottom of page 8 in the document linked above, about the size of t
 		// variable for storing m as well as u
 		MONWORD m[SIZE];
-		// sum in short (C,S)
-		uint64_t S_short = 0;
+		// sum in (C,S)
+		uint64_t S_short = 0; // Part of carry handling method
 		// sum S
 		MONWORD S = 0;
 		// carry C
@@ -105,45 +106,34 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 			for(j=0; j<k; j++)
 			{
 				// (C,S) = t[0] + a[j]*b[i-j]
-					// multiplication of two chars results in short
 					S_short = t[0] + in1[j]*in2[k-j];
-					// S_short can be split in first char=C, second char=S
+					// S_short can be split in first part=Carry, second part=sum
 					C = (MONWORD) (S_short >> (MON_WORDSIZE));
 					S = (MONWORD) S_short;
 
 				// add carry C to t[1] and propagate carry if needed
-					// carry is second char of short
 					t[2] += (t[1] + C) >> MON_WORDSIZE;
-					// actual sum is first char of short
 					t[1] = t[1] + C;
 
 				// (C,S) = S + m[j]*n[i-j]
-					// multiplication of two chars results in short
 					S_short = S + m[j]*n[k-j];
-					// S_short can be split in first char=C, second char=S
 					C = (MONWORD) (S_short >> MON_WORDSIZE);
 					S = (MONWORD) S_short;
 
 				t[0] = S;
 
 				// add carry C to t[1] and propagate carry if needed
-					// carry is second char of short
 					t[2] += (t[1] + C) >> MON_WORDSIZE;
-					// actual sum is first char of short
 					t[1] = t[1] + C;
 			}
 
 			// (C,S) = t[0] + a[i]*b[0]
-					// multiplication of two chars results in short
 					S_short = t[0] + in1[k]*in2[0];
-					// S_short can be split in first char=C, second char=S
 					C = (MONWORD) (S_short >> MON_WORDSIZE);
-					S = (MONWORD) S_short; // TODO moet hier cast (char)?
+					S = (MONWORD) S_short;
 
 			// add carry C to t[1] and propagate carry if needed
-				// carry is second char of short
 				t[2] += (t[1] + C) >> MON_WORDSIZE;
-				// actual sum is first char of short
 				t[1] = t[1] + C;
 
 			// m[i] = S*nprime[0] mod W
@@ -151,19 +141,15 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 			m[k] = (MONWORD) (S*nprime_0);
 
 			// (C,S) = S + m[i]*n[0]
-					// multiplication of two chars results in short
 					S_short = S + m[k]*n[0];
-					// S_short can be split in first char=C, second char=S
 					C = (MONWORD) (S_short >> MON_WORDSIZE);
-					S = (MONWORD) S_short; // TODO moet hier cast (char)?
+					S = (MONWORD) S_short;
 
 			// add carry C to t[1] and propagate carry if needed
-				// carry is second char of short
 				t[2] += (t[1] + C) >> MON_WORDSIZE;
-				// actual sum is first char of short
 				t[1] = t[1] + C;
 
-			// een soort t shift
+			// t shift
 			t[0] = t[1];
 			t[1] = t[2];
 			t[2] = 0;
@@ -171,7 +157,7 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 
 	// STEP 2 finishing touch
 #pragma MUST_ITERATE(2*SIZE,2*SIZE,1)
-		for(k=SIZE; k<2*SIZE; k++) // NEED warning: comparison is always true due to limited range of data type. warning is er niet meer omdat i nu short is ipv char
+		for(k=SIZE; k<2*SIZE; k++)
 		{
 #pragma MUST_ITERATE(0,SIZE,1)
 #pragma UNROLL(4)
@@ -179,37 +165,29 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 			{
 
 				// (C,S) = t[0] + a[j]*b[i-j]
-					// multiplication of two chars results in short
 					S_short = t[0] + in1[j]*in2[k-j];
-					// S_short can be split in first char=C, second char=S
 					C = (MONWORD) (S_short >> MON_WORDSIZE);
-					S = (MONWORD) S_short; // TODO moet hier cast (char)?
+					S = (MONWORD) S_short;
 
 				// add carry C to t[1] and propagate carry if needed
-					// carry is second char of short
 					t[2] += (t[1] + C) >> MON_WORDSIZE;
-					// actual sum is first char of short
 					t[1] = t[1] + C;
 
 				// (C,S) = S + m[j]*n[i-j]
-					// multiplication of two chars results in short
 					S_short = S + m[j]*n[k-j];
-					// S_short can be split in first char=C, second char=S
 					C = (MONWORD) (S_short >> MON_WORDSIZE);
-					S = (MONWORD) S_short; // TODO moet hier cast (char)?
+					S = (MONWORD) S_short;
 
 				t[0] = S;
 
 				// add carry C to t[1] and propagate carry if needed
-					// carry is second char of short
 					t[2] += (t[1] + C) >> MON_WORDSIZE;
-					// actual sum is first char of short
 					t[1] = t[1] + C;
 			}
 
 			m[k-SIZE] = t[0];
 
-			// een soort t shift
+			// t shift
 			t[0] = t[1];
 			t[1] = t[2];
 			t[2] = 0;
@@ -233,8 +211,6 @@ void montgomery_multiplication(MONWORD *res, MONWORD *in1, MONWORD *in2, MONWORD
 				m[it] = r;
 
 			}
-
-
 		}else{
 			for(it=SIZE-1; it>=0;it--){
 				if(m[it]>n[it]){

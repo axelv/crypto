@@ -114,7 +114,7 @@ void RSASSA_PKCS1_V1_5_SIGN(uint8_t *S,uint8_t *privkey,unsigned int privkey_len
 	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,OLDSIZE);
 // Step 2: S = Sign EM using rsa_privkey
 
-	// Let's try and change the encoded msg endianness
+	// We turn the encoded octet string around (so that the resulting value has MSByte 0, which makes it smaller than the modulus at all times and thus able to be exponentiated)
 	uint8_t encoded_msg_LE[OLDSIZE] = {0,};
 	for(i=0;i<OLDSIZE;i++){
 		encoded_msg_LE[i] = encoded_msg[OLDSIZE-1-i];
@@ -161,7 +161,7 @@ uint8_t RSASSA_PKCS1V1_5_VERIFY(uint8_t *M, unsigned int M_length, uint8_t *S,ui
 // Step 2: EM' = EMSA-PKCS1-V1_5-ENCODE (M, k)
 
 	EMSA_PKCS1_V1_5_ENCODE(encoded_msg, M, M_length,OLDSIZE);
-	// change encoded msg endianness
+	// We turn the encoded octet string around (so that the resulting value has MSByte 0, which makes it smaller than the modulus at all times and thus able to be exponentiated)
 	uint8_t encoded_msg_LE[OLDSIZE];
 	for(i=0;i<OLDSIZE;i++){
 		encoded_msg_LE[i] = encoded_msg[OLDSIZE-1-i];
