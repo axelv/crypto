@@ -132,11 +132,13 @@ int main (int argc, char *argv[])
   }
 
   // CRYPTOSHIZLE
-  finalize_connection();
+  uint8_t findata[MAX_DATA_LENGTH];
+  finalize_connection(findata);
 
   /* finalize output (write header) and close */
   wavpcm_output_close (&output);
 
   /* Return successful exit code. */
+  printf("\nRead from " INPUTWAVFILE ". Output to " OUTPUTWAVFILE "\n");
   return 0;
 }
